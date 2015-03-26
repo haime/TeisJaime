@@ -1,0 +1,140 @@
+\documentclass[11pt,spanish]{report}
+%\usepackage[square]{natbib}
+\usepackage[spanish,activeacute,mexico]{babel}
+
+\addto\captionsspanish{
+  \renewcommand{\contentsname}%
+    {Tabla de Contenido}%
+}
+
+
+
+\usepackage[utf8]{inputenc}
+\usepackage{TemplateFiles/UNAMThesis}
+\usepackage{amsmath}
+%\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{multicol}
+
+\graphicspath{ {img/} }
+\usepackage[Glenn]{fncychap}
+%\usepackage[Rejne]{fncychap}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage[caption=false]{subfig}
+\usepackage[width=16.5cm,top=2.5cm,bottom=2.5cm,headsep=1cm,bindingoffset=6mm]{geometry}
+\usepackage{alltt}
+\usepackage{hyperref}
+\pagestyle{plain}
+
+\logounam{escudo_UNAM}
+%\logounam{Escudo-UNAM}
+%\logoinstitute{Escudo-IBT}
+\pagenumbering{roman}
+\flushbottom
+
+\theoremstyle{definition}
+
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+%\newtheorem{algorithm}[theorem]{Algorithm}
+%\newtheorem{axiom}[theorem]{Axiom}
+%\newtheorem{case}[theorem]{Case}
+%\newtheorem{claim}[theorem]{Claim}
+%\newtheorem{conclusion}[theorem]{Conclusion}
+%\newtheorem{condition}[theorem]{Condition}
+%\newtheorem{conjecture}[theorem]{Conjecture}
+%\newtheorem{corollary}[theorem]{Corollary}
+%\newtheorem{criterion}[theorem]{Criterion}
+%\newtheorem{example}{Ejemplo}
+%\newtheorem{definition}{Definición}
+%\newtheorem{exercise}[theorem]{Exercise}
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{notation}[theorem]{Notation}
+%\newtheorem{problem}[theorem]{Problem}
+%\newtheorem{proposition}[theorem]{Proposition}
+%\newtheorem{remark}[theorem]{Remark}
+%\newtheorem{solution}[theorem]{Solution}
+%\newtheorem{summary}[theorem]{Summary}
+%\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+
+\begin{document}
+
+\title{ Detección y Reconocimiento de objetos utilizando técnicas de visión en GPU }
+\author{Jaime Alan Márquez Montes}
+
+\institute{Posgrado en Ciencia e Ingeniería de la Computación}
+\department{Laboratorio de Bio-Robótica}
+\degree{Maestro en Ciencias de la Computación}
+
+\supervisor{Dr. Jesús Savage Carmona \\ Dr. Jose David Flores Peñaloza }
+
+\city{Ciudad de México, D. F.}
+\degreemonth{Junio}
+\degreeyear{2015}
+
+\pdfbookmark[0]{Portada}{portada}
+\maketitle
+
+\begin{dedication}
+Dedicatorias...........
+			\\...........
+			\\............
+\end{dedication}
+
+\begin{acknowledgements}
+Agradecimientos...........
+			\\...........
+			\\............
+\end{acknowledgements}
+
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents
+
+\clearpage
+
+%\begin{foreword}
+%Redacte aqu\'{\i} el pr\'{o}logo contando la historia detr\'{a}s de su
+%trabajo.
+%\end{foreword}
+
+
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{}{}}
+\pagenumbering{arabic}
+
+\include{chapters/Introduccion}
+
+\include{chapters/Imagenes}
+
+\include{chapters/ComputoGPUs}
+
+\include{chapters/SIFTGPU}
+\include{chapters/ORBGPU}
+
+\include{chapters/Conclusiones}
+
+
+\appendix
+
+
+
+
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\bibname}
+%\bibliographystyle{TemplateFiles/UNAMThesis}
+\bibliographystyle{unsrt}
+%\pdfbookmark[0]{Bibliografía}{bibliografia}
+\bibliography{Referencias}
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\listfigurename}
+\listoffigures
+%\pdfbookmark[0]{Lista de Figuras}{figuras}
+\end{document}
