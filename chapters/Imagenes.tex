@@ -73,22 +73,27 @@ Para extraer las características existen diferentes formas, dependerá de que a
   		$$m(x,y) = \sqrt{ (L(x+1,y)-L(x-1,y))^2 + (L(x,y+1)-L(x,y-1))^2 }$$		
 		$$\theta(x,y) =  \tan^{-1} \left(\frac{L(x,y+1)-L(x,y-1)}{L(x+1,y)-L(x-1,y)}\right)$$
 		Se formara un histograma de orientaciones que tendrá la orientación de los gradientes calculados en una región, al rededor del punto característico, el tamaño de esta muestra dependerá de la ubicación en el espacio escala en la que se encuentre el punto característico. El histograma de orientaciones tendrá 36 divisiones cubriendo los 360 grados.
-		\begin{figure}[t]
-			\centering
-				\includegraphics[scale=0.5]{img/HistoOrientacion.png}
-			\caption{Histograma de Orientación TEMPORAL}
-		\end{figure}
+		
 		Para cada muestra agregada se ponderada por la magnitud de su gradiente y por una mascara circular gaussiana ponderada con $\sigma$, que es $1.5$ veces que de la ubicación del espacio escala donde reside el punto característico.
 		Los picos en el histograma de orientación corresponden a las direcciones dominantes de los gradientes locales. Se encuentra el pico mas grande y cualquier otro pico que se encuentre en el rango de $100\% - 80\%$, del pico más grande, se utiliza para hacer que el punto característico tenga una orientación. Para ubicaciones con varios picos de magnitudes similares, se generaran puntos característicos con la misma ubicación y escala pero con diferentes orientaciones. Solo el $15\%$ de los puntos se les asignan múltiples orientaciones, pero aun así esto contribuye mucho al momento de emparejar. Finalmente se obtiene una parábola usando como puntos tres picos cercanos entre si, para interpolar la posición del pico con mas precisión.  
 	
+	\begin{figure}[h]
+			\centering
+				\includegraphics[scale=1.5]{img/HistoOrientacion.png}
+			\caption{Histograma de Orientación }
+	\end{figure}
 	
+	
+	\begin{figure}[h]
+			\centering
+				\includegraphics[scale=1.5]{img/Descriptor.png}
+			\caption{Descriptor }
+	\end{figure}
+		
+		
 	\subsection{Descriptor de puntos característicos} \hfill \\
 	Hasta este momento tenemos una colección de puntos característicos, los cuales están formados por una ubicación, una escala y una orientación. Ahora debemos formar un descriptor que sea lo suficientemente distintivo. Para esto tenemos que tomar una muestra de la imagen, al rededor del punto característico de $16\times16$ pixeles y se dividirá en una región de $4 \times 4$. Se generará un histograma de orientación de los gradientes de cada región, a diferencia del histograma de orientación explicado anteriormente, el histograma solo tiene 8 divisiones con las cuales se cubrirán los 360 grados, igualmente se usara una ponderación gaussiana para la asignación de la magnitud al histograma.
-		\begin{figure}[t]
-			\centering
-				\includegraphics[scale=0.5]{img/Descriptor.png}
-			\caption{Descriptor TEMPORAL}
-		\end{figure}
+		
 	Al final el descriptor de cada punto característico estará formado por un vector, que tiene las ocho orientaciones de los $4\times4$ histogramas. Por lo tanto el tamaño del vector sera de $4\times4\times8 = 128$ elementos. 
  
  

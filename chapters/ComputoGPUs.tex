@@ -33,7 +33,7 @@ Los dispositivos CUDA aceleran la ejecución de los programas que tienen una gra
 
 \begin{figure}[h]
 			\centering
-				\includegraphics[scale=0.2]{img/SIMD.jpg}
+				\includegraphics[scale=0.1]{img/SIMD.jpg}
 			\caption{SIMD}
 \end{figure}
 
@@ -48,12 +48,54 @@ Estas ALU tan particulares, en la arquitectura de CUDA las conoceremos como \tex
 
 \subsubsection{Fermi}
 
-Los GPU basados en la arquitectura Fermi, están formados por 512 CUDA cores. Los CUDA cores ejecutan operaciones de punto flotantes o enteras por ciclo de reloj, y por cada uno de los hilos. Los 512 CUDA cores están organizados en 16 SM de 32 cores cada uno. El GPU tiene seis particiones de memoria de 64-bits, capacidad para leer 384-bits de la memoria simultáneamente y con una capacidad de hasta 6GB de memoria DRAM categoría DDR5. El sistema de conexión entre el GPU y el CPU es vía PCI-Express. La forma en que se hace la programación de el trabajo a realizar en cada bloque es asignado por un modulo llamado \textit{GigaThread}, este pasa las tareas a cada SM para que el haga la asignación de trabajo a cada hilo.
+Los GPU basados en la arquitectura Fermi \cite{fermi}, están formados por 512 CUDA cores. Los CUDA cores ejecutan operaciones de punto flotantes o enteras por ciclo de reloj, y por cada uno de los hilos. Los 512 CUDA cores están organizados en 16 SM de 32 cores cada uno. El GPU tiene seis particiones de memoria de 64-bits, capacidad para leer 384-bits de la memoria simultáneamente y con una capacidad de hasta 6GB de memoria DRAM categoría DDR5. El sistema de conexión entre el GPU y el CPU es vía PCI-Express. La forma en que se hace la programación de el trabajo a realizar en cada bloque es asignado por un modulo llamado \textit{GigaThread}, este pasa las tareas a cada SM para que el haga la asignación de trabajo a cada hilo. 
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.7]{img/ArqFermi.png}
+			\caption{La arquitectura Fermi tiene sus 16 SM al rededor de la memoria compartida L2 cache}
+\end{figure}
+
+La arquitectura tuvo mejoras significativas como el rendimiento en las operaciones de doble precisión, dedicado a computo científico; soporte para la corrección de errores, para asegurar las operaciones con números muy grandes, en aplicaciones delicadas; se implemento una jerarquía en la memoria cache, que permite aumentar la eficiencia en cuanto a las  lecturas a memoria; la memoria compartida tuvo un incremento; y las operaciones atómicas incrementaron su desempeño, gracias a que se aumentaron las unidades de operaciones atómicas y la aparición de la memoria L2 cache. 
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.6]{img/fermiSM.png}
+			\caption{Fermi Streaming Multiprocessor (SM)}
+\end{figure}
+
+Las SM de la arquitectura Fermi están formadas de diferentes elementos, iniciando por los 32 CUDA cores, cada uno con una unidad aritmética lógica para las operaciones con enteros y una unidad de punto flotante. Cumplen con la norma IEEE 754-2008 que permite realizar una multiplicación y una suma en un solo paso de redondeo. La asignación de trabajo en las SM se realiza por el modulo \textit{GigaThread}, que divide en bloques de hilos a cada SM, después los planeadores de \textit{warps} es quien tienen el trabajo de dividir este bloque en grupos de 32 hilos para su ejecución dentro de la SM. Tambien tiene 16 unidades load/store, las cuales permiten calcular origen y destino de dieciséis hilos por pulso de reloj; cuenta también con 4 unidades de funciones especiales (SFU), que ejecutan instrucciones mas complejas como senos, cosenos, reciproco y raíz cuadrada. 
+
+\subsubsection{Kepler}
+
+La arquitectura Kepler \cite{Kepler}, modifico los SM de su antecesor llamándolo Next Generation Streaming Multiprocessor (SMX), es el nuevo procesador de esta arquitectura, en la cual encontraremos que esta formada por 15 de estos procesadores y seis controladores de memoria de 64-bits.La cantidad de CUDA cores que contiene es de 192 de precisión simple y 64 unidades de doble precisión. 
+
+Las unidades load/store aumentaron a 32 y las SFU también incrementaron a 32, ocho veces más que en Fermi. La asignación de hilos dentro de el SMX es programado igualmente por planeadores de warps, bloques de 32 hilos, Kepler tiene 4 planificadores de warps, de esta manera se tienen 2 unidades de despacho de instrucciones, permitiendo repartir y ejecutar 4 warps de manera concurrente. Nos encontramos con una memoria cache L1, la cual podemos cambiar su configuración. 
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.4]{img/KeplerSMX.png}
+			\caption{Kepler Next Generation Streaming Multiprocessor (SMX)}
+\end{figure}
+
+La capacidad de esta memoria es de 64KB, se pueden tener las configuraciones de 16, 32 o 48 KB para la memoria cache, dejando el resto para la memoria compartida. La cantidad de registros por SMX es de 65536, de los cuales, cada hilo puede tener acceso a 255 registros para el almacenamiento de datos. La memoria de textura ha sido un recurso valioso para para programas donde se requiere probar o filtrar datos de una imagen, en esta arquitectura dejo de ser un hardware dedicado solo a este objetivo, se dejo un espacio en la memoria global de solo lectura de 48KB que funciona como una memoria cache para agilizar las lecturas.
 
 
 
+En esta arquitectura se agrego una característica, donde no se requiere de el CPU para lanzar programas en la GPU, lo que significa que el GPU tiene la capacidad de generar mas carga de trabajo, administrar recursos y obtener resultados dentro de la misma GPU, en la zona de mas interés, donde se pueda requerir más poder de computo. 
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.45]{img/MaxwellSM.png}
+			\caption{Maxwell Streaming Multiprocessor (SMM)}
+\end{figure}
 
 
+
+\subsubsection{Maxwell}
+La arquitectura Maxwell\cite{Maxwell}, tuvo un cambio en su diseño para proporcionar un cambio dramático en su desempeño. Lo que genero este desempeño fue el nuevo diseño que le dieron a los nuevos SM llamados SM Maxwell (SMM). El numero de CUDA cores bajo a 128, para poder separarlos en 4 divisiones de 32 CUDA cores, cada una de esas divisiones tiene un planificador de warps, para su bloque de 32 CUDA cores, el cual es capaz de despachar dos instrucciones por ciclo de reloj. Estas divisiones hicieron que se utilizara de una manera mas eficiente el espacio y la energia gastada para el manejo de la transferencia de datos.
+
+La memoria compartida incremento a 96KB, la cual ya no se comparte con la memoria cache L1, ahora la memoria de textura comparte espacio con la cahce L1. Los registros, las SFU, y las unidades load/store siguen siendo la misma cantidad.
 
 
 
