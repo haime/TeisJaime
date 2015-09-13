@@ -99,6 +99,86 @@ La memoria compartida incremento a 96KB, la cual ya no se comparte con la memori
 
 
 
-\subsection{Modelo de Programación}
-\subsection{Rendimiento}
+\section{Modelo de Programación CUDA C}
+La extensión del lenguaje C que proporciona CUDA para programar, es un camino que ofrece, para programadores familiarizados a este lenguaje, una manera sencilla de escribir programas para ser ejecutados en la GPU. A continuación se explicara el núcleo del conjunto de instrucciones de esta extensión.
+\subsection{Kernels}
+
+En CUDA C, permite definir funciones llamadas \textit{kernels}, las cuales cuando son llamadas se ejecutan N veces en paralelo por N diferentes \textit{hilos} CUDA. Para definir un kernel se usa la declaración \textbf{\_\_global\_\_}, estos kernels se ejecutan en un dispositivo, la tarjeta gráfica instalada en la computadora; y se invocaran por medio de un equipo anfitrión, este anfitrión no es mas que el procesador que estará usando la tarjeta gráfica como coprocesador. En el siguiente código podemos ver como se declara un kernel: 
+
+\lstset{language=C,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+        frame= single,
+        numbers = left,
+        xleftmargin=2em,
+        framexleftmargin=1.5em        
+}
+\begin{lstlisting}
+	__global__ void kernel( ... )
+    {
+   		...
+    }
+
+\end{lstlisting}
+
+Al lanzar, desde el anfitrión, el kernel, se debe escoger una configuración de hilos CUDA que se lanzaran para ejecutarlo, a cada uno de estos hilos se les dará un identificador único (\textit{threadID}). 
+
+\subsection{Jerarquía de Hilos}
+
+Para especificar la configuración que se usara para lanzar los hilos, se especifica poniéndolo entre \textbf{\textless\textless\textless} y \textbf{\textgreater\textgreater\textgreater}.Se requiere de dos parámetros para el lanzamiento el primero es la dimension de la malla, que se refiere al numero de bloques y el segundo es la dimension del bloque, que es el numero de hilos que contendrá. 
+
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.45]{img/grid_block.png}
+			\caption{Organización de bloques e hilos}
+\end{figure}
+
+
+Cada hilo tiene un identificador que se puede acceder por \textbf{threadIdx}, este identificador es un vector de tres componentes, por lo tanto los hilos pueden usar identificadores de uno, dos o tres dimensiones. Para formar bloques unidimensionales, dimensionales o tridimensionales. Los bloques están organizados en una malla que puede tener una, dos o tres dimensiones, los bloques tiene un identificador al cual se puede acceder por la variable \textbf{blockIdx}, existe otra variable importante y es la que nos dará la dimension del bloque, se llama \textbf{blockDim}. A continuación veremos un ejemplo de como se lanzaría un kernel:
+
+\lstset{language=C,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+        frame= single,
+        numbers = left,
+        xleftmargin=2em,
+        framexleftmargin=1.5em        
+}
+\begin{lstlisting}
+	__global__ void miKernel( ... )
+    {
+   		...
+    }
+	int main(...)
+	{
+		...	
+		dim3 gridDim(...,...,...);
+		dim3 blockDim(...,...,...);
+		miKernel<<<gridDim,blockDim>>>(...);	
+		...
+	}
+\end{lstlisting}
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.6]{img/block_sm.png}
+			\caption{Asignación de bloques por SM}
+\end{figure}
+
+
+Parte importante del paralelismo es la comunicación entre cada proceso que se ejecuta simultáneamente, hacer cooperar los hilos en la GPU tiene sus detalles. Para la comunicación tenemos la memoria compartida a la cual permite el intercambio de datos solo entre hilos del mismo bloque. En cuanto a sincronizar los hilos se tiene una función llamada \textbf{\_\_syncthreads()}, esta sincroniza los hilos por barrera, pero los hilos que esperaran solo lo harán con hilos de su mismo bloque. Esta característica de que solo hilos del mismo bloque se puedan comunicar es por la forma en que son asignados para su ejecución cada uno de los bloques. En la figura 3-8 podemos observar como se asignan los bloques a cada SM por lo tanto podrían asignarse en cualquier orden y ejecutarse en tiempos diferentes. De este modo la sincronizar los hilos y la escritura y lectura a memoria compartida no serán un problema con el diseño que se describió anteriormente.
+
+
+
+
+\subsection{Jerarquía de Memoria}
+
+
+
+\section{Rendimiento}
 
