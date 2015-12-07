@@ -12,25 +12,60 @@ Entonces tenemos que cambiar la forma en que programamos, ahora no solo pensarem
 \begin{itemize}
  
 	\item \textit{Funcional}: Aquí lo que se divide es el algoritmo, buscamos pasos en el algoritmo que no dependan de otra parte del mismo y los ponemos a ejecutarse simultáneamente en diferentes 		procesos. Requiere de sincronizan muy cuidadosamente para que las diferentes partes de el algoritmo no interfieran entre si. 
+	
+	\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.7]{img/funcional.jpg}
+			\caption{Todos los procesos son partes diferentes del algoritmo}
+	\end{figure}
 
 	\item \textit{Dominio}: Se repartirán los datos en los múltiples procesos los cuales tienen una especificación idéntica. El sincronizan es sencillo en este caso, pero aun así hay que presentar atención ya que podríamos corromper información.
+	\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.6]{img/dominio.jpg}
+			\caption{Todos los procesos tienen la misma especificación }
+	\end{figure}
 
 	\item 	\textit{Actividad}: Es una combinación de los dos puntos anteriores.
 \end{itemize}
 
 Ahora que tenemos el algoritmo y las herramienta para mejorar su rendimiento por medio de la paraleización. Veremos como analizamos las partes de SIFT para de esta manera adaptarlo al modelo de programación de CUDA.
-
+\pagebreak
 \section{Análisis de SIFT para su Paralelización en GPU}
 
-Primero dividiremos en 6 partes el algoritmo de SIFT, estas partes no se ejecutaran simultáneamente, es solo que el algoritmo es bastante largo y al separarlo en estas partes podemos simplificar en diferentes kerneles que tendrán una secuencia de ejecución. Lo que quiere decir que lo que tendremos que repartir entre los múltiples procesos serán los datos de entrada, con lo cual estaremos en la categoría de paralelismo de \textit{dominio}.
+En esta sección se describe como se comunicaran y sincronizar los procesos, así como la estructura que tomara el algoritmo de SIFT, para poder paralelizarlo con CUDA. 
 
-Ahora 
+Primero dividiremos en 6 partes el algoritmo de SIFT, como se muuestra en la figura 4-3 , estas partes no se ejecutaran simultáneamente, es solo que el algoritmo es bastante largo y al separarlo en estas partes podemos simplificarlo en diferentes kernels, que tendrán una secuencia de ejecución. 
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=1]{img/SIFTdiv.jpg}
+			\caption{División del algoritmo SIFT a paralelizar}
+\end{figure}
 
 
 
+Los kernels de las diferentes partes del algoritmo tienen una estructura en común, básicamente todos tiene como entrada una o mas imágenes, las cuales serán de solo lectura, y obtendremos una imagen o varias de salida. Cada proceso tendrá una sección de la imagen de tamaño  $N \times N$, la cual puede estar traslapada con la de algún otro proceso, pero esta área no requiere de sincronizar entre procesos ya que solo sera para obtener datos, para procesarlos.En la imagen de salida el proceso se le sera asignado solo un pixel de la imagen para escribir, como se puede mostrar en la figura 4-4 las zonas del P1 y P2 están traslapadas y en la imagen de salida, que es como si tuviera un zoom a los pixeles, no escriben en otro que no sea su pixel. Los procesos que se ejecutan sobre la imagen tienen la misma especificación, lo que quiere decir que lo que estamos repartiendo entre los múltiples procesos, serán los datos de entrada, con lo cual estaremos en la categoría de paralelismo de \textit{dominio}.
 
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=1]{img/prosImg.jpg}
+			\caption{Proceso general de los kenels }
+\end{figure}
+
+
+Cada uno de los kernels serán ejecutados múltiples veces, este trabajo sera desempeñado por el anfitrión (CPU) de forma secuencial, esto es importante ya que cada uno de estos kernels es lanzado sin importar que el anterior acabara de ejecutarse, si múltiples kernels son lanzados y tiene la misma especificación pero trabajan con diferentes secciones de los datos no existe problema. Pero si el anfitrión llegara a lanzar un kernel que tiene una especificación diferente a la de un banco de kernels iguales lanzados anteriormente y estos no han finalizado puede existir riesgo de corromper los datos. Entonces debemos de sincronizar , como se puede ver en la figura 4-5, al  dispositivo (GPU) con el anfitrión (CPU) para evitar caer en este tipo de errores.
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=1]{img/lanzamiento.jpg}
+			\caption{Lanzamiento de Kernels }
+\end{figure}
+
+\pagebreak
 \section{Implementación}
-
+hola
 
 
 

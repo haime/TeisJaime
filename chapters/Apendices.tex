@@ -1,0 +1,356 @@
+\chapter{Kernel Convolución}
+\begin{small}
+
+
+
+\lstset{language=C,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+        frame= single,
+        numbers = none,
+        xleftmargin=0.5em,
+        framexleftmargin=0.5em        
+}
+\begin{lstlisting}
+__global__ void Convolution(float* image,float* mask, 
+		ArrayImage* PyDoG, int maskR,int maskC,
+	        int imgR,int imgC, float* imgOut, int idxPyDoG)
+{
+int tid= threadIdx.x;
+int bid= blockIdx.x;
+int bDim=blockDim.x;
+int gDim=gridDim.x;
+int iImg=0;
+float aux=0;
+int pxlThrd = ceil((double)(imgC*imgR)/(gDim*bDim)); 
+for(int i = 0; i <pxlThrd; ++i)
+	{
+		
+iImg=(tid+(bDim*bid)) + (i*gDim*bDim); 
+ if(iImg < imgC*imgR){
+  int condition=maskC/2+imgC*(floor((double)maskC/2));
+  if (iImg-condition < 0  ||										
+	 iImg+condition > imgC*imgR ||								
+	 iImg%imgC < maskC/2 ||										
+	 iImg%imgC > (imgC-1)-(maskC/2) )							
+	 {
+	 	aux=0;
+	 }else{		
+		int itMask = 0;
+		int itImg=iImg-condition;
+		for (int j = 0; j < maskR; ++j)
+		{		
+			for (int h = 0; h < maskC; ++h)
+			{
+				aux+=image[itImg]*mask[itMask];
+				++itMask;
+				++itImg;
+			}
+			itImg+=imgC-maskC;
+		}
+	 }
+	imgOut[iImg]=aux;
+	aux=0;
+  }
+ }
+ PyDoG[idxPyDoG].image=imgOut;
+}
+\end{lstlisting}
+
+\end{small}
+\pagebreak
+
+\chapter{Kernel Localización de máximos y mínimos }
+
+\begin{small}
+\lstset{language=C,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+        frame= single,
+        numbers = none,
+        xleftmargin=0.5em,
+        framexleftmargin=0.5em        
+}
+\begin{lstlisting}
+__global__ void LocateMaxMin(ArrayImage* PyDoG, int idxPyDoG ,
+		float * imgOut ,MinMax * mM, int maskC, int imgR,
+		int imgC, int idxmM)
+{
+int tid= threadIdx.x;
+int bid= blockIdx.x;
+int bDim=blockDim.x;
+int gDim=gridDim.x;
+int iImg=0;
+int pxlThrd = ceil((double)(imgC*imgR)/(gDim*bDim)); 
+for(int i = 0; i <pxlThrd; ++i)
+ {
+  int min=0;
+  int max=0;
+  float value=0.0;
+  float compare =0.0;
+  iImg=(tid+(bDim*bid)) + (i*gDim*bDim); 
+  if(iImg < imgC*imgR){
+	int condition=maskC/2+imgC*(floor((double)maskC/2));
+	if (iImg-condition < 0  ||										
+		iImg+condition > imgC*imgR ||								
+		iImg%imgC < maskC/2 ||										
+		iImg%imgC > (imgC-1)-(maskC/2) )							
+	{                  
+		imgOut[iImg]=0;				
+	}
+	else{
+		value=PyDoG[idxPyDoG].image[iImg];
+		for (int m = -1; m < 2; ++m)
+		{
+		  int itImg=iImg-(1+imgC);
+		  for (int j = 0; j < 3; ++j)
+		  {		
+		    for (int h = 0; h < 3; ++h)
+			{
+				compare =PyDoG[idxPyDoG+m].image[itImg];
+				if(value<=compare && max==0)
+				{
+					++min;
+				}
+				else if(value>=compare && min==0)
+				{
+					++max;
+				}
+				++itImg;
+			  }
+			  itImg+=imgC-3;
+		  }
+		}
+ 		if( (min==26 || max==26)) {
+			imgOut[iImg]=1;
+		}else{
+			imgOut[iImg]=0;
+		}
+	}
+  }
+ }
+mM[idxmM].minMax=imgOut;
+}
+\end{lstlisting}
+
+\end{small}
+\pagebreak
+\chapter{Kernel Remover puntos malos}
+
+\begin{small}
+\lstset{language=C,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+        frame= single,
+        numbers = none,
+        xleftmargin=0.5em,
+        framexleftmargin=0.5em        
+}
+\begin{lstlisting}
+__global__ void RemoveOutlier(ArrayImage* PyDoG, MinMax * mM,
+	int idxmM, int idxPyDoG, int imgR,int imgC ,float* auxOut)
+{
+int tid= threadIdx.x;
+int bid= blockIdx.x;
+int bDim=blockDim.x;
+int gDim=gridDim.x;
+int iImg=0;
+int pxlThrd = ceil((double)(imgC*imgR)/(gDim*bDim)); 
+for(int i = 0; i <pxlThrd; ++i 
+{
+
+  iImg=(tid+(bDim*bid)) + (i*gDim*bDim); 
+		
+  if(iImg < imgC*imgR){
+	if(mM[idxmM].minMax[iImg]>0 && PyDoG[idxPyDoG].image[iImg]>0.05)
+	{
+	  float d, dxx, dyy, dxy, tr, det;
+	  d = PyDoG[idxPyDoG].image[iImg];
+	  dxx = PyDoG[idxPyDoG].image[iImg+1]+
+	  	PyDoG[idxPyDoG].image[iImg-1] - (2*d);
+	  dyy = PyDoG[idxPyDoG].image[iImg+imgC]+
+	  	PyDoG[idxPyDoG].image[iImg-imgC] - (2*d);
+	  dxy = (PyDoG[idxPyDoG].image[iImg+1+imgC]-
+	  	PyDoG[idxPyDoG].image[iImg-1+imgC] - 
+	  	PyDoG[idxPyDoG].image[iImg+1-imgC] +
+	  	PyDoG[idxPyDoG].image[iImg-1-imgC])/4.0;
+	  tr = dxx + dyy;
+	  det = dxx*dyy - dxy*dxy;
+		
+	  if(det<=0 && !(tr*tr/det < 12.1))
+	  mM[idxmM].minMax[iImg]=0;
+	 }else
+	 {
+	   mM[idxmM].minMax[iImg]=0;
+	 }
+     auxOut[iImg]=mM[idxmM].minMax[iImg];
+	}
+}
+	
+}
+\end{lstlisting}
+
+\end{small}
+\pagebreak
+
+\chapter{Kernel Asignar magnitud y orientación}
+
+\begin{small}
+\lstset{language=C,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+        frame= single,
+        numbers = none,
+        xleftmargin=0.5em,
+        framexleftmargin=0.5em        
+}
+\begin{lstlisting}
+__global__ void OriMag(ArrayImage* PyDoG, int idxPyDoG,
+	int imgR,int imgC , ArrayImage* Mag, ArrayImage* Ori,
+	int idxMagOri, float* MagAux, float* OriAux) 
+{
+int tid= threadIdx.x;
+int bid= blockIdx.x;
+int bDim=blockDim.x;
+int gDim=gridDim.x;
+float dx,dy;
+int iImg=0;
+int pxlThrd = ceil((double)(imgC*imgR)/(gDim*bDim)); 
+for(int i = 0; i <pxlThrd; ++i)
+{
+	iImg=(tid+(bDim*bid)) + (i*gDim*bDim); 
+	if(iImg < imgC*imgR){
+	int condition=1/2+imgC*(floor((double)1/2));
+	if (iImg-condition < 0  ||										
+	iImg+condition > imgC*imgR ||								
+	iImg%imgC < 1/2 ||										
+	iImg%imgC > (imgC-1)-(1/2) )							
+	{                  
+		OriAux[iImg]=0;
+		MagAux[iImg]=0;
+	}
+	else{
+		dx=PyDoG[idxPyDoG].image[iImg+1]-
+			PyDoG[idxPyDoG].image[iImg-1];
+		dy=PyDoG[idxPyDoG].image[iImg+imgC]-
+			PyDoG[idxPyDoG].image[iImg-imgC];
+		MagAux[iImg]=sqrt(dx*dx + dy*dy);
+		OriAux[iImg]=atan2(dy,dx);
+    }
+}
+}
+	
+	Mag[idxMagOri].image= MagAux;
+	Ori[idxMagOri].image= OriAux;
+
+	
+}
+\end{lstlisting}
+
+
+\end{small}
+\pagebreak
+\chapter{Kernel Generar puntos característicos}
+\begin{small}
+
+	\lstset{language=C,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+        frame= single,
+        numbers = none,
+        xleftmargin=0.5em,
+        framexleftmargin=0.5em        
+}
+\begin{lstlisting}
+__global__ void KeyPoints(ArrayImage * Mag,
+	ArrayImage * Ori, MinMax * mM , int idxMOmM,
+	keyPoint * KP, float sigma, int imgR,int imgC,
+	int octava )
+{
+int tid= threadIdx.x;
+int bid= blockIdx.x;
+int bDim=blockDim.x;
+int gDim=gridDim.x;
+float o = 0;
+int x=0, y=0, octv=-1;
+int iImg=0;
+int pxlThrd = ceil((double)(imgC*imgR)/(gDim*bDim)); 
+for(int i = 0; i <pxlThrd; ++i) 
+{
+	iImg=(tid+(bDim*bid)) + (i*gDim*bDim);  
+	octv=-1;
+	if(iImg < imgC*imgR ){
+	  if(mM[idxMOmM].minMax[iImg]>0){
+		int condition=9/2+imgC*(floor((double)9/2));
+		if (iImg-condition < 0  ||														iImg+condition > imgC*imgR ||												iImg%imgC < 9/2 ||										
+			iImg%imgC > (imgC-1)-(9/2) )							
+		{                  
+		  o=-1.0;
+		  x=-1;
+		  y=-1;
+		  octv=-1;
+		}
+		else{
+		  float histo[36]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		  	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		  octv=octava;
+		  x=iImg%imgC;
+		  y=iImg/imgC;
+		  int idxMO= (iImg-4)-(4*imgC);
+		  float exp_denom = 2.0 * sigma * sigma;
+		  float w;
+		  int bin;
+		  for (int i = -4; i < 5; ++i)
+		  {
+		    for (int j = -4; j < 5; ++j)
+			{
+			  w = exp( -( i*i + j*j ) / exp_denom );
+			  bin=round((double)(36*Ori[idxMOmM].image[idxMO])
+			  			/6.28318530718);
+	  		  bin = ( bin < 36 )? bin : 0;
+	  		  histo[bin]= w*Mag[idxMOmM].image[idxMO];
+	  		  ++idxMO;
+			 }
+			 idxMO=idxMO+imgC-9;
+		   }
+		   int idxH=0;
+		   float valMaxH = histo[0];
+		   for (int i = 1; i < 36; ++i)
+		   {
+		    if(histo[i]>valMaxH){
+		      idxH = i;
+		    }
+		   }
+		   int l = (idxH == 0)? 35:idxH-1;
+		   int r = (idxH+1)%36;
+		   float bin_= bin + ((0.5*(histo[l]-histo[r]))/
+		   		(histo[l]-(2*histo[idxH])+histo[r]));
+		   bin_= ( bin_ < 0 )? 36 + bin_ :
+		   ( bin_ >= 36 )? bin_ - 36 :
+		   bin_;
+		   o=((6.28318530718*bin_)/36)-3.141592654;
+	    }
+	  }
+	  KP[iImg].orientacion=o;
+	  KP[iImg].x=x;
+	  KP[iImg].y=y;
+	  KP[iImg].octv=octv;
+	}
+}
+}
+\end{lstlisting}
+
+\end{small}
+\pagebreak
+\chapter{Kernel Generar descriptor}
+
