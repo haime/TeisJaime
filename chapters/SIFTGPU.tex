@@ -1,8 +1,34 @@
 \chapter{ SIFT en GPU}
 
+La correcta paralelización de un algoritmo no es nada trivial. Después de el capitulo anterior, al ver todas las ventajas que tenemos en los GPU`s podríamos decir que son la solución a todo, tristemente no lo son, existen algoritmos que por la estructura del programa y forma de ejecutar el proceso, no se podrían paralelizar. Para saber como analizar si un algoritmo es paralelizable primero debemos dar una definición de que es un programa paralelo:
+
+\begin{center}
+\textit{"Programa paralelo es la especificación de dos o mas procesos simultáneos que cooperan entre si con un fin en común"}
+\end{center}
+
+Podemos sacar dos aspectos importantes de esta definición el primero es la comunicación, los procesos deben poder compartir información  para poder trabajar simultáneamente sobre un mismo problema; el segundo es la sincronización, es simplemente como organizar a los procesos para que mientras realizan su parte de trabajo sin que se interfieran entre ellos.
+Entonces tenemos que cambiar la forma en que programamos, ahora no solo pensaremos como llegar a un objetivo paso a paso, sino  que debemos pensar como muchos procesos trabajaran juntos para alcanzar un objetivo, esto inmediatamente me da la idea de repartir o dividir el trabajo entre todos ellos. Así que para realizar la labor de paralelizar el algoritmo debemos analizar básicamente tres casos de paralelismo:
+ 
+\begin{itemize}
+ 
+	\item \textit{Funcional}: Aquí lo que se divide es el algoritmo, buscamos pasos en el algoritmo que no dependan de otra parte del mismo y los ponemos a ejecutarse simultáneamente en diferentes 		procesos. Requiere de sincronizan muy cuidadosamente para que las diferentes partes de el algoritmo no interfieran entre si. 
+
+	\item \textit{Dominio}: Se repartirán los datos en los múltiples procesos los cuales tienen una especificación idéntica. El sincronizan es sencillo en este caso, pero aun así hay que presentar atención ya que podríamos corromper información.
+
+	\item 	\textit{Actividad}: Es una combinación de los dos puntos anteriores.
+\end{itemize}
+
+Ahora que tenemos el algoritmo y las herramienta para mejorar su rendimiento por medio de la paraleización. Veremos como analizamos las partes de SIFT para de esta manera adaptarlo al modelo de programación de CUDA.
+
+\section{Análisis de SIFT para su Paralelización en GPU}
+
+Primero dividiremos en 6 partes el algoritmo de SIFT, estas partes no se ejecutaran simultáneamente, es solo que el algoritmo es bastante largo y al separarlo en estas partes podemos simplificar en diferentes kerneles que tendrán una secuencia de ejecución. Lo que quiere decir que lo que tendremos que repartir entre los múltiples procesos serán los datos de entrada, con lo cual estaremos en la categoría de paralelismo de \textit{dominio}.
+
+Ahora 
 
 
-\section{Diseño}
+
+
 \section{Implementación}
 
 
