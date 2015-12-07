@@ -197,9 +197,72 @@ La\textit{ memoria constante} es una memoria de solo lectura, en la cual alberga
 
 La \textit{memoria de textura} al igual que la memoria constante es una memoria de solo lectura, esta diseñada para trabajar con estructuras llamadas CUDA array las cuales permiten un lecturas eficientes en arreglos de una, dos o tres dimensiones. Las lecturas en este tipo de memoria tienen ventajas como diferentes formas de acceso e interpolaciones en los datos que se pueden utilizar sin costos adicionales.
 
+
+
+
 La \textit{memoria global} es la memoria de lectura/escritura de mayor tamaño en la tarjeta gráfica, llega al orden de los gygabytes. Las funciones que tiene son de lectura de datos y escritura de resultados, también funciona como interfaz entre la GPU y el CPU. La persistencia de los datos en esta memoria son persistentes, hasta que se liberen, lo que nos permite que esta memoria funcione para compartir datos entre kernels. Los hilos pueden acceder en cualquier momento del kernel a esta memoria, pero su latencia es tan alta que podría provocar que tarde mas la lectura de datos que los cálculos que se quieren realizar. Existen funciones para reservar, manejar y liberar el espacio en memoria, desde el anfitrión: \textbf{cudaMalloc()}, \textbf{cudaMemCpy()} y \textbf{cudaFree()}.
 
 
+
+\subsection{Programación heterogénea}
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.35]{img/PH.png}
+			\caption{Programación Heterogénea}
+\end{figure}
+
+Para entender el modelo de programación de CUDA, se tiene que tener en cuenta que se debe hacer código para el CPU y el GPU para que estos puedan trabajar en conjunto. El CPU es el equipo anfitrión (Host) el que decidirá cuando necesitara usar al dispositivo (Device) GPU, el anfitrion y el dispositivo también tendrán memorias separadas. 
+
+Un Programa en CUDA C se ejecuta como se muestra en la figura 3-10, en el siguiente código se puede ver la estructura básica de un programa, en el cual podemos ver que se declara y definen funciones kernel, también podemos ver que hay funciones ejecutables en el GPU, siendo llamadas desde algún kernel se definiran con la palabra reservada \textbf{\_\_device\_\_}.
+En la función principal el anfitrión se encargara de obtener los datos que se le proporcionaran y almacenarlos al kernel para ser procesados por el  GPU, también podemos ver como es que se reservara la memoria en el dispositivo para los datos de entrada y salida que el kernel necesite para procesarlos.
+Después de realizar la copia de los datos de anfitrión a dispositivo, se pueden ejecutar uno o más kernels en el GPU, una vez finalizada la ejecución de estos kernels el resultado se copia a la memoria del anfitrión. La final solo quedan liberar los recurso que ya no serán utilizados. 
+
+\lstset{language=C,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+        frame= single,
+        numbers = left,
+        xleftmargin=2em,
+        framexleftmargin=1.5em        
+}
+\begin{lstlisting}
+	__device__ L funcionDevice()
+	{ ... }	
+	__global__ void KernelUno(L*, ... )
+    {
+    	...
+   		L r= fooDevice();
+   		...
+    }
+    __global__ void KernelDos( ... )
+    { ... }    
+    int main(...)
+	{	...
+		L* datosD;
+		cudaMalloc(&datosD,size);
+		...		
+		cudaMemcpy(datosD,src,size,cudaMemcpyHostToDevice);		
+		...	
+		dim3 gridDim(...,...,...);
+		dim3 blockDim(...,...,...);
+		KernelUno<<<gridDim,blockDim>>>(datosD,...);	
+		...
+		KernelDos<<<...,...>>>(...);
+		...
+		cudaMemcpy(res,datosD,size,cudaMemcpyHostToDevice);
+		...
+		cudaFree(datosD);
+		...			
+	}
+\end{lstlisting}
+
+
+
+
+  
 
 
 
