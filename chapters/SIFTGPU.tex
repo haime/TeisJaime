@@ -1,3 +1,4 @@
+
 \chapter{ SIFT en GPU}
 
 La correcta paralelización de un algoritmo no es nada trivial. Después de el capitulo anterior, al ver todas las ventajas que tenemos en los GPU`s podríamos decir que son la solución a todo, tristemente no lo son, existen algoritmos que por la estructura del programa y forma de ejecutar el proceso, no se podrían paralelizar. Para saber como analizar si un algoritmo es paralelizable primero debemos dar una definición de que es un programa paralelo:
@@ -11,7 +12,7 @@ Entonces tenemos que cambiar la forma en que programamos, ahora no solo pensarem
  
 \begin{itemize}
  
-	\item \textit{Funcional}: Aquí lo que se divide es el algoritmo, buscamos pasos en el algoritmo que no dependan de otra parte del mismo y los ponemos a ejecutarse simultáneamente en diferentes 		procesos. Requiere de sincronizan muy cuidadosamente para que las diferentes partes de el algoritmo no interfieran entre si. 
+	\item \textit{Funcional}: Aquí lo que se divide es el algoritmo, buscamos pasos en el algoritmo que no dependan de otra parte del mismo y los ponemos a ejecutarse simultáneamente en diferentes procesos. Requiere de sincronizan muy cuidadosamente para que las diferentes partes de el algoritmo no interfieran entre si. 
 	
 	\begin{figure}[h]
 			\centering
@@ -35,7 +36,7 @@ Ahora que tenemos el algoritmo y las herramienta para mejorar su rendimiento por
 
 En esta sección se describe como se comunicaran y sincronizar los procesos, así como la estructura que tomara el algoritmo de SIFT, para poder paralelizarlo con CUDA. 
 
-Primero dividiremos en 6 partes el algoritmo de SIFT, como se muuestra en la figura 4-3 , estas partes no se ejecutaran simultáneamente, es solo que el algoritmo es bastante largo y al separarlo en estas partes podemos simplificarlo en diferentes kernels, que tendrán una secuencia de ejecución. 
+Primero dividiremos en 6 partes el algoritmo de SIFT, como se muestra en la figura 4-3 , estas partes no se ejecutaran simultáneamente, es solo que el algoritmo es bastante largo y al separarlo en estas partes podemos simplificarlo en diferentes kernels, que tendrán una secuencia de ejecución. 
 
 \begin{figure}[h]
 			\centering
@@ -54,18 +55,190 @@ Los kernels de las diferentes partes del algoritmo tienen una estructura en com�
 			\caption{Proceso general de los kenels }
 \end{figure}
 
-
-Cada uno de los kernels serán ejecutados múltiples veces, este trabajo sera desempeñado por el anfitrión (CPU) de forma secuencial, esto es importante ya que cada uno de estos kernels es lanzado sin importar que el anterior acabara de ejecutarse, si múltiples kernels son lanzados y tiene la misma especificación pero trabajan con diferentes secciones de los datos no existe problema. Pero si el anfitrión llegara a lanzar un kernel que tiene una especificación diferente a la de un banco de kernels iguales lanzados anteriormente y estos no han finalizado puede existir riesgo de corromper los datos. Entonces debemos de sincronizar , como se puede ver en la figura 4-5, al  dispositivo (GPU) con el anfitrión (CPU) para evitar caer en este tipo de errores.
-
 \begin{figure}[h]
 			\centering
 				\includegraphics[scale=1]{img/lanzamiento.jpg}
 			\caption{Lanzamiento de Kernels }
 \end{figure}
+\pagebreak
+
+Cada uno de los kernels serán ejecutados múltiples veces, este trabajo sera desempeñado por el anfitrión (CPU) de forma secuencial, esto es importante ya que cada uno de estos kernels es lanzado sin importar que el anterior acabara de ejecutarse, si múltiples kernels son lanzados y tiene la misma especificación pero trabajan con diferentes secciones de los datos no existe problema. Pero si el anfitrión llegara a lanzar un kernel que tiene una especificación diferente a la de un banco de kernels iguales lanzados anteriormente y estos no han finalizado puede existir riesgo de corromper los datos. Entonces debemos de sincronizar , como se puede ver en la figura 4-5, al  dispositivo (GPU) con el anfitrión (CPU) para evitar caer en este tipo de errores.
+
+
 
 \pagebreak
 \section{Implementación}
-hola
+
+Ahora que conocemos la estructura general de la solución, plantearé como construí cada una de las partes en las que dividí el algoritmo de SIFT, figura 4-3,  para poder adaptarlo a el modelo de programación de CUDA.
+
+\subsection{Construcción del espacio escala y aproximación a un Laplaciano de Gaussiano}
+
+Recordando un poco, el espacio escala se forma a partir de suavizar la imagen original a diferentes niveles de detalles, lo que hice fue cambiar el filtro gaussiano por uno que se aproximara a el Laplaciano de Gaussiana, que seria una diferencia de Gausianas. 
+
+$$D(x,y;\sigma) = (G(x,y;k\sigma) - G(x,y;\sigma)) * I(x,y)$$ 
+
+Para ello obtendremos los filtros Gaussianos con la ayuda de la librería OpenCV, y los restamos para así obtener los filtros que aplicaremos en cada octava. Quedando como los de las figura X-X.
+
+///////////////////Imagen de DOG////////////////////////
+
+También usaré OpenCV para cambiar el tamaño de las imágenes, para cada octava.
+
+La sección de esta parte, de las que dividí el algoritmo, que es altamente paralelizable es al momento de hacer la convolución. Por este motivo lo que hice fue desarrollar un kernel, se puede encontrar en el apéndice A, que realice la convolución de una imagen y un filtro.
+
+La idea es que estos kernels son lanzados por el anfitrión, se lanzaran tantos kernels como imágenes se necesitan para crear el espacio escala. Los kernels sera ejecutados de forma concurrente. 
+
+La funcionalidad del kernel es, para cada pixel en la imagen de salida se asigna un hilo de diferentes bloques, y estos se encargaran con los datos de entrada, la imagen y el filtro, implementar la operación de convolución.\\
+
+\begin{algorithm}[H]
+\caption{Calculo de la convolución para cada imagen del espacio escala}
+ \KwData{ImagenEntrada, Filtro}
+ \KwResult{ImagenSalida }
+ Para cada pixel asigna un hilo\;
+ 
+ \ForAll{hilos}
+ {
+	\eIf{ImagenSalida.pixel es orilla}
+	{
+		ImagenSalida.pixel=0;
+	}{
+		
+		ImagenSalida.pixel= ImagenEntrada.zona * Filtro; 
+		\\
+		\tcp{Donde * es el operador para la convolución}			
+		}
+ }
+	
+
+\end{algorithm}
 
 
 
+EL resultado es como el de la figura X-X, tendremos imágenes muy similares para cada una de las octavas.
+
+////////////////////Imagenes de una escala de la piramide////////////////////////
+ 
+\subsection{Detección de puntos característicos}
+En el espacio escala, obtenido anteriormente, buscaré los puntos extremos. A lo que nos referimos con esto es que en $D(x,y,\sigma)$ buscaré las ubicaciones máximas y mínimas, cada punto es comparado con sus ocho vecinos en la misma imagen y con sus otros dieciocho vecinos de escala, nueve en la imagen de arriba y nueve en la imagen de abajo. Solo se selecciona la ubicación si el pixel tiene un valor mayor o menor a todos sus vecinos.\\
+
+
+\begin{algorithm}[H]
+\caption{Búsqueda de puntos extremos}
+ \KwData{ImgArriba, Img , ImgAbajo }
+ \KwResult{ImgMascara}
+ Para cada pixel asigna un hilo\;
+ 
+ \ForAll{hilos}
+ {
+	\eIf{Img.pixel es orilla}
+	{
+		ImgMascara.pixel=0\;
+	}{
+		\ForAll{pixel vecino a Img en ImgArriba, ImgAbajo e Img }
+		{
+			Compara cada pixel vecino con el pixel asignado al hilo\;
+			\eIf{si todos los vecinos son menores o mayores}
+			{
+				ImgMascara.pixel = 1\;			
+			}{
+				ImgMascara.pixel = 0\;
+			
+			}
+		
+		}
+		
+	}
+ }
+	
+\end{algorithm}
+
+
+Como podemos ver en el algoritmo 2, lo que hacemos en el kernel es a cada hilo se le va a asignar un pixel de la imagen de entrada \texttt{Img} para compararla con sus vecinos y asi poder determinar si es un punto extremo. La imagen de salida terminara siendo una mascara binaria si existe un punto extremo, pondrá un pixel en blanco y donde no lo dejara en negro, como se muestra en la figura X-X; Podemos encontrar la implementación de este algoritmo en el apéndice B.
+
+
+///////////////////////Mascara De imagen/////////////////////////////
+
+
+
+
+
+\subsection{Eliminación de puntos característicos malos}
+
+Ahora filtraré los puntos extremos que encontramos anteriormente. Existen dos casos donde los puntos extremos anteriormente seleccionados tendrían que ser eliminados:
+	\begin{enumerate}
+		\item El punto tiene un contraste muy bajo.
+		\item El punto está localizado sobre un borde.
+	\end{enumerate}		
+
+\begin{algorithm}[H]
+\caption{Eliminación de puntos característicos malos}
+ \KwData{Img , ImgMascara}
+ \KwResult{ImgMascara}
+ Para cada pixel asigna un hilo\;
+ 
+ \ForAll{hilos}
+ {
+	Compara cada pixel vecino con el pixel asignado al hilo\;
+	\If{ImgMascara.pixel es mayor que 0}
+	{
+		\If{Img.pixel tiene contraste bajo o esta en un borde}
+		{
+			ImgMascara.pixel=0;
+		}
+	
+				
+	}
+	
+	
+		
+}
+	
+\end{algorithm}
+
+Obtendremos una mascara muy parecida a la de la figura X-X pero esta vez tendremos muchos menos pixeles en color blanco. En el apéndice C podemos ver mas detalladamente como es que se realizo la implementación de esta parte de el algoritmo de SIFT.
+
+
+///////////////////////Mascara De imagen  Filtrados   /////////////////////////////
+
+
+\subsection{Asignación de orientación a los puntos característicos}
+
+Encontrar la orientación de cada punto característico, basado en propiedades locales de la imagen, es importante para que el descriptor sea invariante a la rotación.
+Para esta parte lo mejor fue dividir en dos kernels este proceso uno para calcular las magnitudes y orientaciones de los gradientes. En el apéndice D se encuentra la implementación de este kernel.
+
+$$m(x,y) = \sqrt{ (L(x+1,y)-L(x-1,y))^2 + (L(x,y+1)-L(x,y-1))^2 }$$		
+$$\theta(x,y) =  \tan^{-1} \left(\frac{L(x,y+1)-L(x,y-1)}{L(x+1,y)-L(x-1,y)}\right)$$
+
+Y la otra sera donde tendremos que obtener los histogramas para cada punto característico y asignar una orientación dominante. En el apéndice E encontraremos su implementación. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Generar Descriptor SIFT}
