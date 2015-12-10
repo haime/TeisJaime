@@ -91,18 +91,18 @@ La funcionalidad del kernel es, para cada pixel en la imagen de salida se asigna
 
 \begin{algorithm}[H]
 \caption{Calculo de la convolución para cada imagen del espacio escala}
- \KwData{ImagenEntrada, Filtro}
- \KwResult{ImagenSalida }
- Para cada pixel asigna un hilo\;
+ \KwData{ImgEntrada, Filtro}
+ \KwResult{Img }
+ Para cada pixel en ImgEntrada asigna un hilo\;
  
  \ForAll{hilos}
  {
-	\eIf{ImagenSalida.pixel es orilla}
+	\eIf{Img.pixel es orilla}
 	{
-		ImagenSalida.pixel=0;
+		Img.pixel=0;
 	}{
 		
-		ImagenSalida.pixel= ImagenEntrada.zona * Filtro; 
+		Img.pixel= ImgEntrada.zona * Filtro; 
 		\\
 		\tcp{Donde * es el operador para la convolución}			
 		}
@@ -125,7 +125,7 @@ En el espacio escala, obtenido anteriormente, buscaré los puntos extremos. A lo
 \caption{Búsqueda de puntos extremos}
  \KwData{ImgArriba, Img , ImgAbajo }
  \KwResult{ImgMascara}
- Para cada pixel asigna un hilo\;
+ Para cada pixel en Img asigna un hilo\;
  
  \ForAll{hilos}
  {
@@ -173,11 +173,10 @@ Ahora filtraré los puntos extremos que encontramos anteriormente. Existen dos c
 \caption{Eliminación de puntos característicos malos}
  \KwData{Img , ImgMascara}
  \KwResult{ImgMascara}
- Para cada pixel asigna un hilo\;
+ Para cada pixel en Img asigna un hilo\;
  
  \ForAll{hilos}
  {
-	Compara cada pixel vecino con el pixel asignado al hilo\;
 	\If{ImgMascara.pixel es mayor que 0}
 	{
 		\If{Img.pixel tiene contraste bajo o esta en un borde}
@@ -203,12 +202,57 @@ Obtendremos una mascara muy parecida a la de la figura X-X pero esta vez tendrem
 \subsection{Asignación de orientación a los puntos característicos}
 
 Encontrar la orientación de cada punto característico, basado en propiedades locales de la imagen, es importante para que el descriptor sea invariante a la rotación.
+
+
+\begin{algorithm}[H]
+\caption{Eliminación de puntos característicos malos}
+ \KwData{Img}
+ \KwResult{ImgMagnitud, ImgOrientacion}
+ Para cada pixel en Img asigna un hilo\;
+ 
+ \ForAll{hilos}
+ {
+	Calcular magnitud en Img.pixel\;
+	Calcular orientación en Img.pixel\;
+	
+	ImgMagnitud.pixel= magnitud\;
+	ImgOrientacion.pixel=orientación\;
+	
+}
+\end{algorithm}
+
+
+
 Para esta parte lo mejor fue dividir en dos kernels este proceso uno para calcular las magnitudes y orientaciones de los gradientes. En el apéndice D se encuentra la implementación de este kernel.
 
 $$m(x,y) = \sqrt{ (L(x+1,y)-L(x-1,y))^2 + (L(x,y+1)-L(x,y-1))^2 }$$		
 $$\theta(x,y) =  \tan^{-1} \left(\frac{L(x,y+1)-L(x,y-1)}{L(x+1,y)-L(x-1,y)}\right)$$
 
-Y la otra sera donde tendremos que obtener los histogramas para cada punto característico y asignar una orientación dominante. En el apéndice E encontraremos su implementación. 
+Y la otra sera donde tendremos que obtener los histogramas para cada punto característico y asignar una orientación dominante. En el apéndice E, encontraremos su implementación. 
+
+
+\begin{algorithm}[H]
+\caption{Eliminación de puntos característicos malos}
+ \KwData{Img , ImgMascara, ImgMagnitud, ImgOrientacion}
+ \KwResult{PuntosCaracteristicos}
+ Para cada pixel en Img asigna un hilo\;
+ 
+ \ForAll{hilos}
+ {
+	\If{ImgMascara.pixel es mayor que 0}
+	{
+		Realizar el histograma de a zona al rededor de el punto característico\;
+		Encontrar cuales son los valores mas altos más altos\;
+		Encontrar una orientación dominante con los puntos mas altos\;
+		Almacenar la orientación y la ubicación de ese punto característico\; 
+				
+	}
+	
+	
+		
+}
+	
+\end{algorithm}
 
 
 
@@ -241,4 +285,4 @@ Y la otra sera donde tendremos que obtener los histogramas para cada punto carac
 
 
 
-\subsection{Generar Descriptor SIFT}
+%%\subsection{Generar Descriptor SIFT}
