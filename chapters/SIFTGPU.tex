@@ -8,7 +8,11 @@ La correcta paralelización de un algoritmo no es nada trivial. Después de el c
 \end{center}
 
 Podemos sacar dos aspectos importantes de esta definición el primero es la comunicación, los procesos deben poder compartir información  para poder trabajar simultáneamente sobre un mismo problema; el segundo es la sincronización, es simplemente como organizar a los procesos para que mientras realizan su parte de trabajo sin que se interfieran entre ellos.
-Entonces tenemos que cambiar la forma en que programamos, ahora no solo pensaremos como llegar a un objetivo paso a paso, sino  que debemos pensar como muchos procesos trabajaran juntos para alcanzar un objetivo, esto inmediatamente me da la idea de repartir o dividir el trabajo entre todos ellos. Así que para realizar la labor de paralelizar el algoritmo debemos analizar básicamente tres casos de paralelismo:
+Entonces tenemos que cambiar la forma en que programamos, ahora no solo pensaremos como llegar a un objetivo paso a paso, sino  que debemos pensar como muchos procesos trabajaran juntos para alcanzar un objetivo, esto inmediatamente me da la idea de repartir o dividir el trabajo entre todos ellos. 
+
+\pagebreak
+
+Así que para realizar la labor de paralelizar el algoritmo debemos analizar básicamente tres casos de paralelismo:
  
 \begin{itemize}
  
@@ -77,9 +81,19 @@ Recordando un poco, el espacio escala se forma a partir de suavizar la imagen or
 
 $$D(x,y;\sigma) = (G(x,y;k\sigma) - G(x,y;\sigma)) * I(x,y)$$ 
 
-Para ello obtendremos los filtros Gaussianos con la ayuda de la librería OpenCV, y los restamos para así obtener los filtros que aplicaremos en cada octava. Quedando como los de las figura X-X.
+Para ello obtendremos los filtros Gaussianos con la ayuda de la librería OpenCV, y los restamos para así obtener los filtros que aplicaremos en cada octava. Quedando como los de las figura 4-6.
 
-///////////////////Imagen de DOG////////////////////////
+
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.2]{img/DoG.jpg}
+			\caption{Filtros}
+\end{figure}
+
+
+
+ 
+
 
 También usaré OpenCV para cambiar el tamaño de las imágenes, para cada octava.
 
@@ -110,12 +124,17 @@ La funcionalidad del kernel es, para cada pixel en la imagen de salida se asigna
 	
 
 \end{algorithm}
+\begin{figure}[ph]
+			\centering
+				\includegraphics[scale=0.45]{img/pyDoGT.jpg}
+			\caption{Espacio Escala de Diferencia de Gaussianas}
+\end{figure}
+
+\pagebreak
+El resultado es como el de la figura 4-7, tendremos imágenes muy similares para cada una de las octavas. 
 
 
 
-EL resultado es como el de la figura X-X, tendremos imágenes muy similares para cada una de las octavas.
-
-////////////////////Imagenes de una escala de la piramide////////////////////////
  
 \subsection{Detección de puntos característicos}
 En el espacio escala, obtenido anteriormente, buscaré los puntos extremos. A lo que nos referimos con esto es que en $D(x,y,\sigma)$ buscaré las ubicaciones máximas y mínimas, cada punto es comparado con sus ocho vecinos en la misma imagen y con sus otros dieciocho vecinos de escala, nueve en la imagen de arriba y nueve en la imagen de abajo. Solo se selecciona la ubicación si el pixel tiene un valor mayor o menor a todos sus vecinos.\\
@@ -152,10 +171,16 @@ En el espacio escala, obtenido anteriormente, buscaré los puntos extremos. A lo
 \end{algorithm}
 
 
-Como podemos ver en el algoritmo 2, lo que hacemos en el kernel es a cada hilo se le va a asignar un pixel de la imagen de entrada \texttt{Img} para compararla con sus vecinos y asi poder determinar si es un punto extremo. La imagen de salida terminara siendo una mascara binaria si existe un punto extremo, pondrá un pixel en blanco y donde no lo dejara en negro, como se muestra en la figura X-X; Podemos encontrar la implementación de este algoritmo en el apéndice B.
+Como podemos ver en el algoritmo 2, lo que hacemos en el kernel es a cada hilo se le va a asignar un pixel de la imagen de entrada \texttt{Img} para compararla con sus vecinos y asi poder determinar si es un punto extremo.\\ \pagebreak
+ 
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.3]{img/minmaxs.jpg}
+			\caption{Mascara}
+\end{figure} 
+ 
+La imagen de salida terminara siendo una mascara binaria si existe un punto extremo, pondrá un pixel en blanco y donde no lo dejara en negro, como se muestra en la figura 4-8; Podemos encontrar la implementación de este algoritmo en el apéndice B.\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ \pagebreak
 
-
-///////////////////////Mascara De imagen/////////////////////////////
 
 
 
@@ -193,11 +218,15 @@ Ahora filtraré los puntos extremos que encontramos anteriormente. Existen dos c
 	
 \end{algorithm}
 
-Obtendremos una mascara muy parecida a la de la figura X-X pero esta vez tendremos muchos menos pixeles en color blanco. En el apéndice C podemos ver mas detalladamente como es que se realizo la implementación de esta parte de el algoritmo de SIFT.
+Obtendremos una mascara muy parecida a la de la figura 4-9 pero esta vez tendremos muchos menos pixeles en color blanco. En el apéndice C podemos ver mas detalladamente como es que se realizo la implementación de esta parte de el algoritmo de SIFT.
 
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=0.3]{img/minmax.jpg}
+			\caption{Mascara Filtrada}
+\end{figure}
 
-///////////////////////Mascara De imagen  Filtrados   /////////////////////////////
-
+\pagebreak
 
 \subsection{Asignación de orientación a los puntos característicos}
 
@@ -228,8 +257,10 @@ Para esta parte lo mejor fue dividir en dos kernels este proceso uno para calcul
 $$m(x,y) = \sqrt{ (L(x+1,y)-L(x-1,y))^2 + (L(x,y+1)-L(x,y-1))^2 }$$		
 $$\theta(x,y) =  \tan^{-1} \left(\frac{L(x,y+1)-L(x,y-1)}{L(x+1,y)-L(x-1,y)}\right)$$
 
+
 Y la otra sera donde tendremos que obtener los histogramas para cada punto característico y asignar una orientación dominante. En el apéndice E, encontraremos su implementación. 
 
+\pagebreak
 
 \begin{algorithm}[H]
 \caption{Eliminación de puntos característicos malos}
@@ -247,9 +278,6 @@ Y la otra sera donde tendremos que obtener los histogramas para cada punto carac
 		Almacenar la orientación y la ubicación de ese punto característico\; 
 				
 	}
-	
-	
-		
 }
 	
 \end{algorithm}
@@ -257,7 +285,11 @@ Y la otra sera donde tendremos que obtener los histogramas para cada punto carac
 
 
 
-
+\begin{figure}[h]
+			\centering
+				\includegraphics[scale=1]{img/KeyPoints.png}
+			\caption{Puntos característicos }
+\end{figure}
 
 
 

@@ -4,17 +4,27 @@ Hasta hace 12 años la velocidad a la que crecían cada generación de procesado
 Este cambio en los procesadores tuvo un gran impacto a los programadores, la mayoría de las aplicaciones son escritas de forma secuencial,  por que la ejecución de estas son comprensibles paso a paso, mediante el código. Pero un programa secuencial ejecutándose en un solo núcleo del procesador, no sera más rápido. Entonces los programadores ya no pueden agregar cualidades y capacidades a sus programas.
 
 
-\begin{figure}[h]
+
+
+
+
+Llega el momento de cambiar, si se desea que la calidad de los programas siga escalando con cada generación de procesadores, se deben crear programas que trabajen con múltiples hilos, cooperando todos para completar un trabajo mas rápido. 
+
+\pagebreak
+
+
+
+Existen dos corrientes principales en cuanto a los procesadores multi-núcleo, el primero, es donde se pretende mantener la velocidad de los programas secuenciales, mientras se mueven entre múltiples núcleos; la segunda, se centra mas en la ejecución de aplicaciones en paralelo, tiene un gran numero de núcleos pequeños que va creciendo con cada generación. Es esta rama en la que entran las unidades de procesamiento gráfico o por sus siglas en ingles GPU.\cite{Kirk2010} \\\\\\ 
+
+\begin{figure}[ph]
 			\centering
 				\includegraphics[scale=0.5]{img/flops.png}
 			\caption{Comparación entre GPU vs CPU}
 \end{figure}
 
 
-
-Llega el momento de cambiar, si se desea que la calidad de los programas siga escalando con cada generación de procesadores, se deben crear programas que trabajen con múltiples hilos, cooperando todos para completar un trabajo mas rápido. Existen dos corrientes principales en cuanto a los procesadores multi-núcleo, el primero, es donde se pretende mantener la velocidad de los programas secuenciales, mientras se mueven entre múltiples núcleos; la segunda, se centra mas en la ejecución de aplicaciones en paralelo, tiene un gran numero de núcleos pequeños que va creciendo con cada generación. Es esta rama en la que entran las unidades de procesamiento gráfico o por sus siglas en ingles GPU.\cite{Kirk2010}
-
 \pagebreak
+
 \section{GP-GPUs Nvidia}
 
 "Las GPU han evolucionado al punto que muchas aplicaciones del mundo real se están implementando fácilmente en ellas y se ejecutan muchísimo más rápido que en sistemas con múltiples núcleos. Las arquitecturas de computación del futuro serán sistemas híbridos con GPU de núcleos paralelos trabajando en tándem con CPU de múltiples núcleos".\cite{GPUIntro}
@@ -106,7 +116,7 @@ En esta arquitectura se agrego una característica, donde no se requiere de el C
 \subsubsection{Maxwell}
 La arquitectura Maxwell\cite{Maxwell}, tuvo un cambio en su diseño para proporcionar un cambio dramático en su desempeño. Lo que genero este desempeño fue el nuevo diseño que le dieron a los nuevos SM llamados SM Maxwell (SMM). El numero de CUDA cores bajo a 128, para poder separarlos en 4 divisiones de 32 CUDA cores, cada una de esas divisiones tiene un planificador de warps, para su bloque de 32 CUDA cores, el cual es capaz de despachar dos instrucciones por ciclo de reloj. Estas divisiones hicieron que se utilizara de una manera mas eficiente el espacio y la energia gastada para el manejo de la transferencia de datos.
 
-La memoria compartida incremento a 96KB, la cual ya no se comparte con la memoria cache L1, ahora la memoria de textura comparte espacio con la cahce L1. Los registros, las SFU, y las unidades load/store siguen siendo la misma cantidad.
+La memoria compartida incremento a 96KB, la cual ya no se comparte con la memoria cache L1, ahora la memoria de textura comparte espacio con la cahce L1. Los registros, las SFU, y las unidades load/store siguen siendo la misma cantidad.\\\\\\\
 
 
 
@@ -149,7 +159,11 @@ Para especificar la configuración que se usara para lanzar los hilos, se especi
 \end{figure}
 
 
-Cada hilo tiene un identificador que se puede acceder por \textbf{threadIdx}, este identificador es un vector de tres componentes, por lo tanto los hilos pueden usar identificadores de uno, dos o tres dimensiones. Para formar bloques unidimensionales, dimensionales o tridimensionales. Los bloques están organizados en una malla que puede tener una, dos o tres dimensiones, los bloques tiene un identificador al cual se puede acceder por la variable \textbf{blockIdx}, existe otra variable importante y es la que nos dará la dimension del bloque, se llama \textbf{blockDim}. A continuación veremos un ejemplo de como se lanzaría un kernel:
+Cada hilo tiene un identificador que se puede acceder por \textbf{threadIdx}, este identificador es un vector de tres componentes, por lo tanto los hilos pueden usar identificadores de uno, dos o tres dimensiones. Para formar bloques unidimensionales, dimensionales o tridimensionales. Los bloques están organizados en una malla que puede tener una, dos o tres dimensiones, los bloques tiene un identificador al cual se puede acceder por la variable \textbf{blockIdx}, existe otra variable importante y es la que nos dará la dimension del bloque, se llama \textbf{blockDim}.\\\\\\\\ 
+
+\pagebreak
+
+A continuación veremos un ejemplo de como se lanzaría un kernel:
 
 \lstset{language=C,
                 basicstyle=\ttfamily,
@@ -182,7 +196,7 @@ Cada hilo tiene un identificador que se puede acceder por \textbf{threadIdx}, es
 			\caption{Asignación de bloques por SM}
 \end{figure}
 
-
+\pagebreak
 Parte importante del paralelismo es la comunicación entre cada proceso que se ejecuta simultáneamente, hacer cooperar los hilos en la GPU tiene sus detalles. Para la comunicación tenemos la memoria compartida a la cual permite el intercambio de datos solo entre hilos del mismo bloque. En cuanto a sincronizar los hilos se tiene una función llamada \textbf{\_\_syncthreads()}, esta sincroniza los hilos por barrera, pero los hilos que esperaran solo lo harán con hilos de su mismo bloque. Esta característica de que solo hilos del mismo bloque se puedan comunicar es por la forma en que son asignados para su ejecución cada uno de los bloques. En la figura 3-8 podemos observar como se asignan los bloques a cada SM por lo tanto podrían asignarse en cualquier orden y ejecutarse en tiempos diferentes. De este modo la sincronizar los hilos y la escritura y lectura a memoria compartida no serán un problema con el diseño que se describió anteriormente.
 
 
@@ -225,10 +239,15 @@ La \textit{memoria global} es la memoria de lectura/escritura de mayor tamaño e
 \end{figure}
 
 Para entender el modelo de programación de CUDA, se tiene que tener en cuenta que se debe hacer código para el CPU y el GPU para que estos puedan trabajar en conjunto. El CPU es el equipo anfitrión (Host) el que decidirá cuando necesitara usar al dispositivo (Device) GPU, el anfitrion y el dispositivo también tendrán memorias separadas. 
-
+\\
 Un Programa en CUDA C se ejecuta como se muestra en la figura 3-10, en el siguiente código se puede ver la estructura básica de un programa, en el cual podemos ver que se declara y definen funciones kernel, también podemos ver que hay funciones ejecutables en el GPU, siendo llamadas desde algún kernel se definiran con la palabra reservada \textbf{\_\_device\_\_}.
+\\
 En la función principal el anfitrión se encargara de obtener los datos que se le proporcionaran y almacenarlos al kernel para ser procesados por el  GPU, también podemos ver como es que se reservara la memoria en el dispositivo para los datos de entrada y salida que el kernel necesite para procesarlos.
-Después de realizar la copia de los datos de anfitrión a dispositivo, se pueden ejecutar uno o más kernels en el GPU, una vez finalizada la ejecución de estos kernels el resultado se copia a la memoria del anfitrión. La final solo quedan liberar los recurso que ya no serán utilizados. 
+\\
+Después de realizar la copia de los datos de anfitrión a dispositivo, se pueden ejecutar uno o más kernels en el GPU, una vez finalizada la ejecución de estos kernels el resultado se copia a la memoria del anfitrión. 
+\pagebreak
+
+La final solo quedan liberar los recurso que ya no serán utilizados. 
 
 \lstset{language=C,
                 basicstyle=\ttfamily,
