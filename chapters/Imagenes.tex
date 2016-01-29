@@ -59,7 +59,7 @@
 		$$Tr(H) = D_{xx} + D_{yy} = \alpha+\beta,$$ $$Det(H) = D_{xx}D_{yy}-(D_{xy})^2= \alpha\beta$$
 		Sea $r$ la razón de la magnitud que existe entre $\alpha$ y $\beta$, $\alpha = r\beta$. Entonces:
 		$$\frac{Tr(H)^2}{Det(H)}= \frac{(\alpha+\beta)^2}{\alpha\beta}= \frac{(r\beta+\beta)^2}{r\beta^2}= \frac{(r+1)^2}{r}$$
-		el cual solo depende de la razón de los valores propios y no de los valores individuales. El valor de $\frac{(r+1)^2}{r}$, es mas pequeño cuando los valores propios son iguales e incrementa con $r$.Entonces para cerciorar que la razón de las curvas principales es menor que cierto umbral, $r$, solo se necesita:
+		el cual solo depende de la razón de los valores propios y no de los valores individuales. El valor de $\frac{(r+1)^2}{r}$, es más pequeño cuando los valores propios son iguales e incrementa con $r$.Entonces para cerciorar que la razón de las curvas principales es menor que cierto umbral, $r$, solo se necesita:
 		$$\frac{Tr(H)^2}{Det(H)} < \frac{(r+1)^2}{r}$$
 		En la publicación de Lowe \cite{Lowe2004} se encontró un valor experimental para $r=10$, que elimina los puntos extremos que tengan la razón entre las dos curvas mayor que 10.
 	
@@ -79,7 +79,7 @@
 		
 		Para cada muestra agregada se ponderada por la magnitud de su gradiente y por una mascara circular gaussiana ponderada con $\sigma$, que es $1.5$ veces que de la ubicación del espacio escala donde reside el punto característico.\\
 		\pagebreak
-		Los picos en el histograma de orientación corresponden a las direcciones dominantes de los gradientes locales. Se encuentra el pico mas grande y cualquier otro pico que se encuentre en el rango de $100\% - 80\%$, del pico más grande, se utiliza para hacer que el punto característico tenga una orientación. Para ubicaciones con varios picos de magnitudes similares, se generaran puntos característicos con la misma ubicación y escala pero con diferentes orientaciones. Solo el $15\%$ de los puntos se les asignan múltiples orientaciones, pero aun así esto contribuye mucho al momento de emparejar. Finalmente se obtiene una parábola usando como puntos tres picos cercanos entre si, para interpolar la posición del pico con mas precisión.  \\\\\\\\\\\ \pagebreak
+		Los picos en el histograma de orientación corresponden a las direcciones dominantes de los gradientes locales. Se encuentra el pico más grande y cualquier otro pico que se encuentre en el rango de $100\% - 80\%$, del pico más grande, se utiliza para hacer que el punto característico tenga una orientación. Para ubicaciones con varios picos de magnitudes similares, se generaran puntos característicos con la misma ubicación y escala pero con diferentes orientaciones. Solo el $15\%$ de los puntos se les asignan múltiples orientaciones, pero aun así esto contribuye mucho al momento de emparejar. Finalmente se obtiene una parábola usando como puntos tres picos cercanos entre si, para interpolar la posición del pico con más precisión.  \\\\\\\\\\\ \pagebreak
 	
 	
 	

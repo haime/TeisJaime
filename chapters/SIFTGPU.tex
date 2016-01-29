@@ -4,7 +4,7 @@
 La correcta paralelización de un algoritmo no es nada trivial. Después de el capitulo anterior, al ver todas las ventajas que tenemos en los GPU`s podríamos decir que son la solución a todo, tristemente no lo son, existen algoritmos que por la estructura del programa y forma de ejecutar el proceso, no se podrían paralelizar. Para saber como analizar si un algoritmo es paralelizable primero debemos dar una definición de que es un programa paralelo:
 
 \begin{center}
-\textit{"Programa paralelo es la especificación de dos o mas procesos simultáneos que cooperan entre si con un fin en común"}
+\textit{"Programa paralelo es la especificación de dos o más procesos simultáneos que cooperan entre si con un fin en común"}
 \end{center}
 
 Podemos sacar dos aspectos importantes de esta definición el primero es la comunicación, los procesos deben poder compartir información  para poder trabajar simultáneamente sobre un mismo problema; el segundo es la sincronización, es simplemente como organizar a los procesos para que mientras realizan su parte de trabajo sin que se interfieran entre ellos.
@@ -43,7 +43,7 @@ En esta sección se describe como se comunicaran y sincronizar los procesos, as�
 Primero dividiremos en 6 partes el algoritmo de SIFT, como se muestra en la figura 5-3 , estas partes no se ejecutaran simultáneamente, es solo que el algoritmo es bastante largo y al separarlo en estas partes podemos simplificarlo en diferentes kernels, que tendrán una secuencia de ejecución. 
 
 
-Los kernels de las diferentes partes del algoritmo tienen una estructura en común, básicamente todos tiene como entrada una o mas imágenes, las cuales serán de solo lectura, y obtendremos una imagen o varias de salida. Cada proceso tendrá una sección de la imagen de tamaño  $N \times N$, la cual puede estar traslapada con la de algún otro proceso, pero esta área no requiere de sincronizar entre procesos ya que solo sera para obtener datos, para procesarlos.En la imagen de salida el proceso se le sera asignado solo un pixel de la imagen para escribir, como se puede mostrar en la figura 5-4 las zonas del P1 y P2 están traslapadas y en la imagen de salida, que es como si tuviera un zoom a los pixeles, no escriben en otro que no sea su pixel. 
+Los kernels de las diferentes partes del algoritmo tienen una estructura en común, básicamente todos tiene como entrada una o más imágenes, las cuales serán de solo lectura, y obtendremos una imagen o varias de salida. Cada proceso tendrá una sección de la imagen de tamaño  $N \times N$, la cual puede estar traslapada con la de algún otro proceso, pero esta área no requiere de sincronizar entre procesos ya que solo sera para obtener datos, para procesarlos.En la imagen de salida el proceso se le sera asignado solo un pixel de la imagen para escribir, como se puede mostrar en la figura 5-4 las zonas del P1 y P2 están traslapadas y en la imagen de salida, que es como si tuviera un zoom a los pixeles, no escriben en otro que no sea su pixel. 
 
 \pagebreak
 Los procesos que se ejecutan sobre la imagen tienen la misma especificación, lo que quiere decir que lo que estamos repartiendo entre los múltiples procesos, serán los datos de entrada, con lo cual estaremos en la categoría de paralelismo de \textit{dominio}.
@@ -84,13 +84,13 @@ Recordando un poco, el espacio escala se forma a partir de suavizar la imagen or
 
 $$D(x,y;\sigma) = (G(x,y;k\sigma) - G(x,y;\sigma)) * I(x,y)$$ 
 
-Para ello obtendremos los filtros Gaussianos con la ayuda de la librería OpenCV, y los restamos para así obtener los filtros que aplicaremos en cada octava. Quedando como los de las figura 5-6.
+Para ello obtendremos los filtros Gaussianos con la ayuda de la librería OpenCV \cite{Opencv}, y los restamos para así obtener los filtros que aplicaremos en cada octava. Quedando como los de las figura 5-6.
 
 
 \begin{figure}[h]
 			\centering
 				\includegraphics[scale=0.2]{img/DoG.jpg}
-			\caption{Filtros}
+			\caption{Filtros de diferencias de gaussianas. a) $\sigma_{0}=1-\sigma_{1}=1.08$,b) $\sigma_{1}=1.08-\sigma_{2}=1.36$,c) $\sigma_{2}=1.36-\sigma_{3}=1.72$,d) $\sigma_{3}=1.72-\sigma_{4}=2.16$, e) $\sigma_{4}=2.16-\sigma_{5}=2.72$. }
 \end{figure}
 
 
@@ -175,15 +175,15 @@ En el espacio escala, obtenido anteriormente, buscaré los puntos extremos. A lo
 \end{algorithm}
 
 
-Como podemos ver en el algoritmo 2, lo que hacemos en el kernel es a cada hilo se le va a asignar un pixel de la imagen de entrada \texttt{Img} para compararla con sus vecinos y asi poder determinar si es un punto extremo.\\ \pagebreak
+Como podemos ver en el algoritmo 2, lo que hacemos en el kernel es a cada hilo se le va a asignar un pixel de la imagen de entrada \texttt{Img} para compararla con sus vecinos y asi poder determinar si es un punto extremo.\\ 
  
 \begin{figure}[h]
 			\centering
 				\includegraphics[scale=0.3]{img/minmaxs.jpg}
-			\caption{Mascara}
+			\caption{Mascara.  Búsqueda con las imágenes del espacio escala: a) 0,1,2 ; b) 1,2,3; c)2,3,4  }
 \end{figure} 
  
-La imagen de salida terminara siendo una mascara binaria si existe un punto extremo, pondrá un pixel en blanco y donde no lo dejara en negro, como se muestra en la figura 5-8; Podemos encontrar la implementación de este algoritmo en el apéndice B.\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ \pagebreak
+La imagen de salida terminara siendo una mascara binaria si existe un punto extremo, pondrá un pixel en blanco y donde no lo dejara en negro, como se muestra en la figura 5-8; Podemos encontrar la implementación de este algoritmo en el apéndice B. \pagebreak
 
 
 
@@ -222,12 +222,12 @@ Ahora filtraré los puntos extremos que encontramos anteriormente. Existen dos c
 	
 \end{algorithm}
 
-Obtendremos una mascara muy parecida a la de la figura 5-9 pero esta vez tendremos muchos menos pixeles en color blanco. En el apéndice C podemos ver mas detalladamente como es que se realizo la implementación de esta parte de el algoritmo de SIFT.
+Obtendremos una mascara muy parecida a la de la figura 5-9 pero esta vez tendremos muchos menos pixeles en color blanco. En el apéndice C podemos ver más detalladamente como es que se realizo la implementación de esta parte de el algoritmo de SIFT.
 
 \begin{figure}[h]
 			\centering
 				\includegraphics[scale=0.3]{img/minmax.jpg}
-			\caption{Mascara Filtrada}
+			\caption{Mascara Filtrada de la búsqueda con las imágenes del espacio escala: a) 0,1,2 ; b) 1,2,3; c)2,3,4  }
 \end{figure}
 
 
@@ -277,8 +277,8 @@ Y la otra sera donde tendremos que obtener los histogramas para cada punto carac
 	\If{ImgMascara.pixel es mayor que 0}
 	{
 		Realizar el histograma de a zona al rededor de el punto característico\;
-		Encontrar cuales son los valores mas altos más altos\;
-		Encontrar una orientación dominante con los puntos mas altos\;
+		Encontrar cuales son los valores más altos más altos\;
+		Encontrar una orientación dominante con los puntos más altos\;
 		Almacenar la orientación y la ubicación de ese punto característico\; 
 				
 	}

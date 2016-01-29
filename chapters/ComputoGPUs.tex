@@ -17,7 +17,7 @@ Toda esta tecnología tan revolucionaria llamo la atención de otros profesional
 
 Pero en ese momento, la GP-GPU era muy difícil de manipular, solo aquellos que tenían amplios conocimientos en lenguajes de programación de gráficos, desarrollaban para esta plataforma. Pero aun que memorizaras el API entera se enfrentaba un reto, donde los cálculos para resolver problemas generales debían ser representados por triángulos o polígonos.
 
-Fue hasta 2001, en la Universidad de Stanford un equipo, liderado por Ian Buck, que se propuso ver el GPU como un  \textit{procesador de flujos}. Este equipo desarrollaría \textit{Brook} \cite{Buck2001}, un lenguaje de programación diseñado para ser igual a la sintaxis de C, con algunas características adicionales. El lenguaje se desarrolla con el objetivo de minimizar el complejo trabajo de análisis, que se requería para generar aplicaciones paralelas. Introducirían conceptos como los flujos(streams), kernels y los operadores de reducción. Todo esto le dio un gran impulso a los GPU como procesadores de propósitos generales, ya que el lenguaje era mas fácil de manejar, ya que era de más alto nivel, y lo mas importante los programas escritos en \textit{Brook} eran hasta 7 veces mas rápido que códigos similares existentes.
+Fue hasta 2001, en la Universidad de Stanford un equipo, liderado por Ian Buck, que se propuso ver el GPU como un  \textit{procesador de flujos}. Este equipo desarrollaría \textit{Brook} \cite{Buck2001}, un lenguaje de programación diseñado para ser igual a la sintaxis de C, con algunas características adicionales. El lenguaje se desarrolla con el objetivo de minimizar el complejo trabajo de análisis, que se requería para generar aplicaciones paralelas. Introducirían conceptos como los flujos(streams), kernels y los operadores de reducción. Todo esto le dio un gran impulso a los GPU como procesadores de propósitos generales, ya que el lenguaje era más fácil de manejar, ya que era de más alto nivel, y lo más importante los programas escritos en \textit{Brook} eran hasta 7 veces más rápido que códigos similares existentes.
 
 La compañía NVIDIA se dio cuenta que tenia un hardware muy poderoso en las manos, pero debía complementarlo con herramientas de hardware y software intuitivas, con ello le hicieron la invitación a Ian Buck para colaborar con ellos, el objetivo sería ejecutar C a la perfección en una GPU. NVIDIA alcanza este objetivo en 2006 con el lanzamiento de CUDA, la cual seria la primera solución para las GP-GPU, y aunado a esta solución, lanza la GeForce 8800 la cual fue diseñada, para ser usada en cómputo de propósito general, y su arquitectura fue pensada en la de CUDA. 
 
@@ -60,7 +60,7 @@ La arquitectura tuvo mejoras significativas como el rendimiento en las operacion
 			\caption{Fermi Streaming Multiprocessor (SM)\cite{fermi}}
 \end{figure}
 
-Las SM de la arquitectura Fermi están formadas de diferentes elementos, iniciando por los 32 CUDA cores, cada uno con una unidad aritmética lógica para las operaciones con enteros y una unidad de punto flotante. Cumplen con la norma IEEE 754-2008 que permite realizar una multiplicación y una suma en un solo paso de redondeo. La asignación de trabajo en las SM se realiza por el modulo \textit{GigaThread}, que divide en bloques de hilos a cada SM, después los planeadores de \textit{warps} es quien tienen el trabajo de dividir este bloque en grupos de 32 hilos para su ejecución dentro de la SM. Tambien tiene 16 unidades load/store, las cuales permiten calcular origen y destino de dieciséis hilos por pulso de reloj; cuenta también con 4 unidades de funciones especiales (SFU), que ejecutan instrucciones mas complejas como senos, cosenos, reciproco y raíz cuadrada. 
+Las SM de la arquitectura Fermi están formadas de diferentes elementos, iniciando por los 32 CUDA cores, cada uno con una unidad aritmética lógica para las operaciones con enteros y una unidad de punto flotante. Cumplen con la norma IEEE 754-2008 que permite realizar una multiplicación y una suma en un solo paso de redondeo. La asignación de trabajo en las SM se realiza por el modulo \textit{GigaThread}, que divide en bloques de hilos a cada SM, después los planeadores de \textit{warps} es quien tienen el trabajo de dividir este bloque en grupos de 32 hilos para su ejecución dentro de la SM. Tambien tiene 16 unidades load/store, las cuales permiten calcular origen y destino de dieciséis hilos por pulso de reloj; cuenta también con 4 unidades de funciones especiales (SFU), que ejecutan instrucciones más complejas como senos, cosenos, reciproco y raíz cuadrada. 
 \pagebreak
 \subsubsection{Kepler}
 
@@ -78,12 +78,12 @@ La capacidad de esta memoria es de 64KB, se pueden tener las configuraciones de 
 
 
 
-En esta arquitectura se agrego una característica, donde no se requiere de el CPU para lanzar programas en la GPU, lo que significa que el GPU tiene la capacidad de generar mas carga de trabajo, administrar recursos y obtener resultados dentro de la misma GPU, en la zona de mas interés, donde se pueda requerir más poder de computo. \\\\\\\\
+En esta arquitectura se agrego una característica, donde no se requiere de el CPU para lanzar programas en la GPU, lo que significa que el GPU tiene la capacidad de generar más carga de trabajo, administrar recursos y obtener resultados dentro de la misma GPU, en la zona de más interés, donde se pueda requerir más poder de computo. \\\\\\\\
 
 
 
 \subsubsection{Maxwell}
-La arquitectura Maxwell\cite{Maxwell}, tuvo un cambio en su diseño para proporcionar un cambio dramático en su desempeño. Lo que genero este desempeño fue el nuevo diseño que le dieron a los nuevos SM llamados SM Maxwell (SMM). El numero de CUDA cores bajo a 128, para poder separarlos en 4 divisiones de 32 CUDA cores, cada una de esas divisiones tiene un planificador de warps, para su bloque de 32 CUDA cores, el cual es capaz de despachar dos instrucciones por ciclo de reloj. Estas divisiones hicieron que se utilizara de una manera mas eficiente el espacio y la energia gastada para el manejo de la transferencia de datos.
+La arquitectura Maxwell\cite{Maxwell}, tuvo un cambio en su diseño para proporcionar un cambio dramático en su desempeño. Lo que genero este desempeño fue el nuevo diseño que le dieron a los nuevos SM llamados SM Maxwell (SMM). El numero de CUDA cores bajo a 128, para poder separarlos en 4 divisiones de 32 CUDA cores, cada una de esas divisiones tiene un planificador de warps, para su bloque de 32 CUDA cores, el cual es capaz de despachar dos instrucciones por ciclo de reloj. Estas divisiones hicieron que se utilizara de una manera más eficiente el espacio y la energia gastada para el manejo de la transferencia de datos.
 
 
 \begin{figure}[ph]
@@ -103,7 +103,7 @@ La memoria compartida incremento a 96KB, la cual ya no se comparte con la memori
 La extensión del lenguaje C que proporciona CUDA para programar, es un camino que ofrece, para programadores familiarizados a este lenguaje, una manera sencilla de escribir programas para ser ejecutados en la GPU. A continuación se explicara el núcleo del conjunto de instrucciones de esta extensión.
 \subsection{Kernels}
 
-En CUDA C, permite definir funciones llamadas \textit{kernels}, las cuales cuando son llamadas se ejecutan N veces en paralelo por N diferentes \textit{hilos} CUDA. Para definir un kernel se usa la declaración \textbf{\_\_global\_\_}, estos kernels se ejecutan en un dispositivo, la tarjeta gráfica instalada en la computadora; y se invocaran por medio de un equipo anfitrión, este anfitrión no es mas que el procesador que estará usando la tarjeta gráfica como coprocesador. En el siguiente código podemos ver como se declara un kernel: 
+En CUDA C, permite definir funciones llamadas \textit{kernels}, las cuales cuando son llamadas se ejecutan N veces en paralelo por N diferentes \textit{hilos} CUDA. Para definir un kernel se usa la declaración \textbf{\_\_global\_\_}, estos kernels se ejecutan en un dispositivo, la tarjeta gráfica instalada en la computadora; y se invocaran por medio de un equipo anfitrión, este anfitrión no es más que el procesador que estará usando la tarjeta gráfica como coprocesador. En el siguiente código podemos ver como se declara un kernel: 
 
 \lstset{language=C,
                 basicstyle=\ttfamily,
@@ -190,23 +190,23 @@ Los hilos de un kernel son los encargados de realizar las operaciones sobre los 
 \begin{figure}[h]
 			\centering
 				\includegraphics[scale=0.6]{img/memoria.jpg}
-			\caption{Tipos de Memoria }
+			\caption{Tipos de Memoria \cite{chengl} }
 \end{figure}
 
-Los \textit{registros} son el tipo de memoria con la lectura/escritura mas rápida que ninguna otra en el dispositivo. En cada SM tenemos miles de registros y a cada hilo se les asigna una cantidad de estos registros, cuando es lanzado el kernel. Los registros son de 32-bits en los cuales se pueden almacenar datos de tipo flotante o entero. La manipulación de este espacio esta administrado por el sistema.
+Los \textit{registros} son el tipo de memoria con la lectura/escritura más rápida que ninguna otra en el dispositivo. En cada SM tenemos miles de registros y a cada hilo se les asigna una cantidad de estos registros, cuando es lanzado el kernel. Los registros son de 32-bits en los cuales se pueden almacenar datos de tipo flotante o entero. La manipulación de este espacio esta administrado por el sistema.
 
 La \textit{memoria local} es un espacio de memoria privada que cada hilo tiene, podemos ver que se almacenan datos que no pudieron ser almacenados en los registros como variables locales, llamadas a funciones y el contexto de ejecución. Al igual que los registros esta memoria es administrada por el sistema.
 
 La \textit{memoria compartida} es una memoria de tipo cache que se comparte entre hilos de un mismo bloque, esto genera que los hilos de el bloque puedan comunicarse, escribiendo y leyendo en ella, para cooperar en la realización de un mismo objetivo. Este cache es especial ya que el programador elige su manejo, la forma en la que se declara una variable en este espacio, es con ayuda de la palabra reservada \textbf{\_\_shared\_\_}. La latencia en esta memoria es hasta 100 veces menor en comparación con la memoria global. 
 
-La\textit{ memoria constante} es una memoria de solo lectura, en la cual albergaremos datos que no cambiaran a lo lago de la ejecución del kernel. Podemos ubicar esta memoria en el dispositivo, al igual que la memoria global, pero esta esta optimizada para enviar datos de lecturas a múltiples hilos. Esto se logra gracias a diferentes instrucciones  que permiten el acceso a este cache de una forma mas eficiente. Con la palabra reservada \textbf{\_\_constant\_\_}, se puede declarar la variable, pero el contenido de este debe ser asignado por el anfitrión, en la memoria del dispositivo, antes de lanzar el kernel, con ayuda de la función \textbf{cudaMemcpyToSymbol()}.
+La\textit{ memoria constante} es una memoria de solo lectura, en la cual albergaremos datos que no cambiaran a lo lago de la ejecución del kernel. Podemos ubicar esta memoria en el dispositivo, al igual que la memoria global, pero esta esta optimizada para enviar datos de lecturas a múltiples hilos. Esto se logra gracias a diferentes instrucciones  que permiten el acceso a este cache de una forma más eficiente. Con la palabra reservada \textbf{\_\_constant\_\_}, se puede declarar la variable, pero el contenido de este debe ser asignado por el anfitrión, en la memoria del dispositivo, antes de lanzar el kernel, con ayuda de la función \textbf{cudaMemcpyToSymbol()}.
 
 La \textit{memoria de textura} al igual que la memoria constante es una memoria de solo lectura, esta diseñada para trabajar con estructuras llamadas CUDA array las cuales permiten un lecturas eficientes en arreglos de una, dos o tres dimensiones. Las lecturas en este tipo de memoria tienen ventajas como diferentes formas de acceso e interpolaciones en los datos que se pueden utilizar sin costos adicionales.
 
 
 
 
-La \textit{memoria global} es la memoria de lectura/escritura de mayor tamaño en la tarjeta gráfica, llega al orden de los gygabytes. Las funciones que tiene son de lectura de datos y escritura de resultados, también funciona como interfaz entre la GPU y el CPU. La persistencia de los datos en esta memoria son persistentes, hasta que se liberen, lo que nos permite que esta memoria funcione para compartir datos entre kernels. Los hilos pueden acceder en cualquier momento del kernel a esta memoria, pero su latencia es tan alta que podría provocar que tarde mas la lectura de datos que los cálculos que se quieren realizar. Existen funciones para reservar, manejar y liberar el espacio en memoria, desde el anfitrión: \textbf{cudaMalloc()}, \textbf{cudaMemCpy()} y \textbf{cudaFree()}.
+La \textit{memoria global} es la memoria de lectura/escritura de mayor tamaño en la tarjeta gráfica, llega al orden de los gygabytes. Las funciones que tiene son de lectura de datos y escritura de resultados, también funciona como interfaz entre la GPU y el CPU. La persistencia de los datos en esta memoria son persistentes, hasta que se liberen, lo que nos permite que esta memoria funcione para compartir datos entre kernels. Los hilos pueden acceder en cualquier momento del kernel a esta memoria, pero su latencia es tan alta que podría provocar que tarde más la lectura de datos que los cálculos que se quieren realizar. Existen funciones para reservar, manejar y liberar el espacio en memoria, desde el anfitrión: \textbf{cudaMalloc()}, \textbf{cudaMemCpy()} y \textbf{cudaFree()}.
 
 
 
@@ -215,7 +215,7 @@ La \textit{memoria global} es la memoria de lectura/escritura de mayor tamaño e
 \begin{figure}[h]
 			\centering
 				\includegraphics[scale=0.35]{img/PH.png}
-			\caption{Programación Heterogénea}
+			\caption{Programación Heterogénea \cite{Flops}}
 \end{figure}
 
 Para entender el modelo de programación de CUDA, se tiene que tener en cuenta que se debe hacer código para el CPU y el GPU para que estos puedan trabajar en conjunto. El CPU es el equipo anfitrión (Host) el que decidirá cuando necesitara usar al dispositivo (Device) GPU, el anfitrion y el dispositivo también tendrán memorias separadas. 
@@ -235,11 +235,12 @@ La final solo quedan liberar los recurso que ya no serán utilizados.
                 stringstyle=\color{red}\ttfamily,
                 commentstyle=\color{green}\ttfamily,
         frame= single,
+       captionpos=b,    
         numbers = left,
         xleftmargin=2em,
         framexleftmargin=1.5em        
 }
-\begin{lstlisting}
+\begin{lstlisting}[caption=Estructura general de un programa en CUDA C.]
 	__device__ L funcionDevice()
 	{ ... }	
 	__global__ void KernelUno(L*, ... )
