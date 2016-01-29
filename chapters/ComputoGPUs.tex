@@ -1,31 +1,6 @@
-\chapter{Computo en GPU's}
-Hasta hace 12 años la velocidad a la que crecían cada generación de procesadores era increíble, los programas eran tan rápidos como cada nueva generación de procesadores. Este crecimiento entre cada generación se detuvo, el problema es el consumo de energía y la disipación de calor, no permiten aumentar la frecuencia del reloj del procesador y el nivel de actividades por ciclo, en una sola unidad de procesamiento (CPU). Todos los productores de procesadores migraron a un nuevo modelo, los procesadores multinúcleo incrementaron el poder de procesamiento.
-
-Este cambio en los procesadores tuvo un gran impacto a los programadores, la mayoría de las aplicaciones son escritas de forma secuencial,  por que la ejecución de estas son comprensibles paso a paso, mediante el código. Pero un programa secuencial ejecutándose en un solo núcleo del procesador, no sera más rápido. Entonces los programadores ya no pueden agregar cualidades y capacidades a sus programas.
 
 
-
-
-
-
-Llega el momento de cambiar, si se desea que la calidad de los programas siga escalando con cada generación de procesadores, se deben crear programas que trabajen con múltiples hilos, cooperando todos para completar un trabajo mas rápido. 
-
-\pagebreak
-
-
-
-Existen dos corrientes principales en cuanto a los procesadores multi-núcleo, el primero, es donde se pretende mantener la velocidad de los programas secuenciales, mientras se mueven entre múltiples núcleos; la segunda, se centra mas en la ejecución de aplicaciones en paralelo, tiene un gran numero de núcleos pequeños que va creciendo con cada generación. Es esta rama en la que entran las unidades de procesamiento gráfico o por sus siglas en ingles GPU.\cite{Kirk2010} \\\\\\ 
-
-\begin{figure}[ph]
-			\centering
-				\includegraphics[scale=0.5]{img/flops.png}
-			\caption{Comparación entre GPU vs CPU}
-\end{figure}
-
-
-\pagebreak
-
-\section{GP-GPUs Nvidia}
+\chapter{GP-GPUs Nvidia}
 
 "Las GPU han evolucionado al punto que muchas aplicaciones del mundo real se están implementando fácilmente en ellas y se ejecutan muchísimo más rápido que en sistemas con múltiples núcleos. Las arquitecturas de computación del futuro serán sistemas híbridos con GPU de núcleos paralelos trabajando en tándem con CPU de múltiples núcleos".\cite{GPUIntro}
 
@@ -35,7 +10,7 @@ Existen dos corrientes principales en cuanto a los procesadores multi-núcleo, e
 			\caption{Sistema Híbrido}
 \end{figure}
 
-\subsection{Breve Historia}
+\section{Breve Historia}
 La necesidad de mejores gráficos para los vídeo juegos, provocaron un gran avance en el hardware que se diseñaría. Desde principios de 1980 hasta finales de 1990 las tarjetas dedicadas a gráficos, no eran más que pipelines fijos que despliegan las formas geométricas calculadas por el CPU, por medio del hardware de acceso directo a memoria, por sus siglas en ingles DMA, esto les daba un funcionamiento fijo y apenas se podía configurar, con principalmente dos API, OpenGL de \textit{Silicon Graphics} y Direct3D de \textit{Microsoft}. Un ejemplo de estas tarjetas gráficas es, a la que se le acuño el nombre de GPU, la GeForce 256\cite{GeForce256} lanzada al mercado en 1999, aporta una capacidad visual sin precedentes, capaz de realizar las funciones de  transformación, iluminación, organización y rendering, con la capacidad de procesar 15 millones de triángulos por segundo y un rendimiento de 480 millones de píxeles por segundo. Su motor de rendering  256 bits muestra una mejora en cuanto a la complejidad visual.
 
 Toda esta tecnología tan revolucionaria llamo la atención de otros profesionales, que se integraron a el trabajo de los artistas y desarrolladores de vídeo juegos, utilizando el gran rendimiento de punto flotante que tenían los GPU para otros objetivos. De esta forma surge el movimiento de la GPU para fines generales(GP-GPU).
@@ -71,56 +46,59 @@ Estas ALU tan particulares, en la arquitectura de CUDA las conoceremos como \tex
 
 Los GPU basados en la arquitectura Fermi \cite{fermi}, están formados por 512 CUDA cores. Los CUDA cores ejecutan operaciones de punto flotantes o enteras por ciclo de reloj, y por cada uno de los hilos. Los 512 CUDA cores están organizados en 16 SM de 32 cores cada uno. El GPU tiene seis particiones de memoria de 64-bits, capacidad para leer 384-bits de la memoria simultáneamente y con una capacidad de hasta 6GB de memoria DRAM categoría DDR5. El sistema de conexión entre el GPU y el CPU es vía PCI-Express. La forma en que se hace la programación de el trabajo a realizar en cada bloque es asignado por un modulo llamado \textit{GigaThread}, este pasa las tareas a cada SM para que el haga la asignación de trabajo a cada hilo. 
 
-\begin{figure}[h]
+\begin{figure}[ph]
 			\centering
 				\includegraphics[scale=0.7]{img/ArqFermi.png}
-			\caption{La arquitectura Fermi tiene sus 16 SM al rededor de la memoria compartida L2 cache}
+			\caption{La arquitectura Fermi tiene sus 16 SM al rededor de la memoria compartida L2 cache \cite{fermi}}
 \end{figure}
 
 La arquitectura tuvo mejoras significativas como el rendimiento en las operaciones de doble precisión, dedicado a computo científico; soporte para la corrección de errores, para asegurar las operaciones con números muy grandes, en aplicaciones delicadas; se implemento una jerarquía en la memoria cache, que permite aumentar la eficiencia en cuanto a las  lecturas a memoria; la memoria compartida tuvo un incremento; y las operaciones atómicas incrementaron su desempeño, gracias a que se aumentaron las unidades de operaciones atómicas y la aparición de la memoria L2 cache. 
 
-\begin{figure}[h]
+\begin{figure}[ph]
 			\centering
 				\includegraphics[scale=0.6]{img/fermiSM.png}
-			\caption{Fermi Streaming Multiprocessor (SM)}
+			\caption{Fermi Streaming Multiprocessor (SM)\cite{fermi}}
 \end{figure}
 
 Las SM de la arquitectura Fermi están formadas de diferentes elementos, iniciando por los 32 CUDA cores, cada uno con una unidad aritmética lógica para las operaciones con enteros y una unidad de punto flotante. Cumplen con la norma IEEE 754-2008 que permite realizar una multiplicación y una suma en un solo paso de redondeo. La asignación de trabajo en las SM se realiza por el modulo \textit{GigaThread}, que divide en bloques de hilos a cada SM, después los planeadores de \textit{warps} es quien tienen el trabajo de dividir este bloque en grupos de 32 hilos para su ejecución dentro de la SM. Tambien tiene 16 unidades load/store, las cuales permiten calcular origen y destino de dieciséis hilos por pulso de reloj; cuenta también con 4 unidades de funciones especiales (SFU), que ejecutan instrucciones mas complejas como senos, cosenos, reciproco y raíz cuadrada. 
-
+\pagebreak
 \subsubsection{Kepler}
 
 La arquitectura Kepler \cite{Kepler}, modifico los SM de su antecesor llamándolo Next Generation Streaming Multiprocessor (SMX), es el nuevo procesador de esta arquitectura, en la cual encontraremos que esta formada por 15 de estos procesadores y seis controladores de memoria de 64-bits.La cantidad de CUDA cores que contiene es de 192 de precisión simple y 64 unidades de doble precisión. 
 
 Las unidades load/store aumentaron a 32 y las SFU también incrementaron a 32, ocho veces más que en Fermi. La asignación de hilos dentro de el SMX es programado igualmente por planeadores de warps, bloques de 32 hilos, Kepler tiene 4 planificadores de warps, de esta manera se tienen 2 unidades de despacho de instrucciones, permitiendo repartir y ejecutar 4 warps de manera concurrente. Nos encontramos con una memoria cache L1, la cual podemos cambiar su configuración. 
 
-\begin{figure}[h]
+\begin{figure}[ph]
 			\centering
 				\includegraphics[scale=0.4]{img/KeplerSMX.png}
-			\caption{Kepler Next Generation Streaming Multiprocessor (SMX)}
+			\caption{Kepler Next Generation Streaming Multiprocessor (SMX) \cite{Kepler}}
 \end{figure}
 
 La capacidad de esta memoria es de 64KB, se pueden tener las configuraciones de 16, 32 o 48 KB para la memoria cache, dejando el resto para la memoria compartida. La cantidad de registros por SMX es de 65536, de los cuales, cada hilo puede tener acceso a 255 registros para el almacenamiento de datos. La memoria de textura ha sido un recurso valioso para para programas donde se requiere probar o filtrar datos de una imagen, en esta arquitectura dejo de ser un hardware dedicado solo a este objetivo, se dejo un espacio en la memoria global de solo lectura de 48KB que funciona como una memoria cache para agilizar las lecturas.
 
 
 
-En esta arquitectura se agrego una característica, donde no se requiere de el CPU para lanzar programas en la GPU, lo que significa que el GPU tiene la capacidad de generar mas carga de trabajo, administrar recursos y obtener resultados dentro de la misma GPU, en la zona de mas interés, donde se pueda requerir más poder de computo. 
-
-\begin{figure}[h]
-			\centering
-				\includegraphics[scale=0.45]{img/MaxwellSM.png}
-			\caption{Maxwell Streaming Multiprocessor (SMM)}
-\end{figure}
+En esta arquitectura se agrego una característica, donde no se requiere de el CPU para lanzar programas en la GPU, lo que significa que el GPU tiene la capacidad de generar mas carga de trabajo, administrar recursos y obtener resultados dentro de la misma GPU, en la zona de mas interés, donde se pueda requerir más poder de computo. \\\\\\\\
 
 
 
 \subsubsection{Maxwell}
 La arquitectura Maxwell\cite{Maxwell}, tuvo un cambio en su diseño para proporcionar un cambio dramático en su desempeño. Lo que genero este desempeño fue el nuevo diseño que le dieron a los nuevos SM llamados SM Maxwell (SMM). El numero de CUDA cores bajo a 128, para poder separarlos en 4 divisiones de 32 CUDA cores, cada una de esas divisiones tiene un planificador de warps, para su bloque de 32 CUDA cores, el cual es capaz de despachar dos instrucciones por ciclo de reloj. Estas divisiones hicieron que se utilizara de una manera mas eficiente el espacio y la energia gastada para el manejo de la transferencia de datos.
 
-La memoria compartida incremento a 96KB, la cual ya no se comparte con la memoria cache L1, ahora la memoria de textura comparte espacio con la cahce L1. Los registros, las SFU, y las unidades load/store siguen siendo la misma cantidad.\\\\\\\
+
+\begin{figure}[ph]
+			\centering
+				\includegraphics[scale=0.6]{img/MaxwellSM.png}
+			\caption{Maxwell Streaming Multiprocessor (SMM) \cite{Maxwell}}
+\end{figure}
+
+La memoria compartida incremento a 96KB, la cual ya no se comparte con la memoria cache L1, ahora la memoria de textura comparte espacio con la cahce L1. Los registros, las SFU, y las unidades load/store siguen siendo la misma cantidad.\pagebreak
 
 
 
-\pagebreak
+
+
+
 \section{Modelo de Programación CUDA C}
 La extensión del lenguaje C que proporciona CUDA para programar, es un camino que ofrece, para programadores familiarizados a este lenguaje, una manera sencilla de escribir programas para ser ejecutados en la GPU. A continuación se explicara el núcleo del conjunto de instrucciones de esta extensión.
 \subsection{Kernels}
@@ -133,11 +111,12 @@ En CUDA C, permite definir funciones llamadas \textit{kernels}, las cuales cuand
                 stringstyle=\color{red}\ttfamily,
                 commentstyle=\color{green}\ttfamily,
         frame= single,
+        captionpos=b,    
         numbers = left,
         xleftmargin=2em,
         framexleftmargin=1.5em        
 }
-\begin{lstlisting}
+\begin{lstlisting}[caption=Declaración de un Kernel en CUDA C.]
 	__global__ void kernel( ... )
     {
    		...
@@ -155,7 +134,7 @@ Para especificar la configuración que se usara para lanzar los hilos, se especi
 \begin{figure}[h]
 			\centering
 				\includegraphics[scale=0.45]{img/grid_block.png}
-			\caption{Organización de bloques e hilos}
+			\caption{Organización de bloques e hilos \cite{Flops}}
 \end{figure}
 
 
@@ -171,11 +150,12 @@ A continuación veremos un ejemplo de como se lanzaría un kernel:
                 stringstyle=\color{red}\ttfamily,
                 commentstyle=\color{green}\ttfamily,
         frame= single,
+        captionpos=b,    
         numbers = left,
         xleftmargin=2em,
         framexleftmargin=1.5em        
 }
-\begin{lstlisting}
+\begin{lstlisting}[caption=Lanzamiento de un Kernel en CUDA C.]
 	__global__ void miKernel( ... )
     {
    		...
@@ -193,11 +173,11 @@ A continuación veremos un ejemplo de como se lanzaría un kernel:
 \begin{figure}[h]
 			\centering
 				\includegraphics[scale=0.4]{img/block_sm.png}
-			\caption{Asignación de bloques por SM}
+			\caption{Asignación de bloques por SM \cite{Flops}}
 \end{figure}
 
 \pagebreak
-Parte importante del paralelismo es la comunicación entre cada proceso que se ejecuta simultáneamente, hacer cooperar los hilos en la GPU tiene sus detalles. Para la comunicación tenemos la memoria compartida a la cual permite el intercambio de datos solo entre hilos del mismo bloque. En cuanto a sincronizar los hilos se tiene una función llamada \textbf{\_\_syncthreads()}, esta sincroniza los hilos por barrera, pero los hilos que esperaran solo lo harán con hilos de su mismo bloque. Esta característica de que solo hilos del mismo bloque se puedan comunicar es por la forma en que son asignados para su ejecución cada uno de los bloques. En la figura 3-8 podemos observar como se asignan los bloques a cada SM por lo tanto podrían asignarse en cualquier orden y ejecutarse en tiempos diferentes. De este modo la sincronizar los hilos y la escritura y lectura a memoria compartida no serán un problema con el diseño que se describió anteriormente.
+Parte importante del paralelismo es la comunicación entre cada proceso que se ejecuta simultáneamente, hacer cooperar los hilos en la GPU tiene sus detalles. Para la comunicación tenemos la memoria compartida a la cual permite el intercambio de datos solo entre hilos del mismo bloque. En cuanto a sincronizar los hilos se tiene una función llamada \textbf{\_\_syncthreads()}, esta sincroniza los hilos por barrera, pero los hilos que esperaran solo lo harán con hilos de su mismo bloque. Esta característica de que solo hilos del mismo bloque se puedan comunicar es por la forma en que son asignados para su ejecución cada uno de los bloques. En la figura 4-8 podemos observar como se asignan los bloques a cada SM por lo tanto podrían asignarse en cualquier orden y ejecutarse en tiempos diferentes. De este modo la sincronizar los hilos y la escritura y lectura a memoria compartida no serán un problema con el diseño que se describió anteriormente.
 
 
 
@@ -210,7 +190,7 @@ Los hilos de un kernel son los encargados de realizar las operaciones sobre los 
 \begin{figure}[h]
 			\centering
 				\includegraphics[scale=0.6]{img/memoria.jpg}
-			\caption{Tipos de Memoria}
+			\caption{Tipos de Memoria }
 \end{figure}
 
 Los \textit{registros} son el tipo de memoria con la lectura/escritura mas rápida que ninguna otra en el dispositivo. En cada SM tenemos miles de registros y a cada hilo se les asigna una cantidad de estos registros, cuando es lanzado el kernel. Los registros son de 32-bits en los cuales se pueden almacenar datos de tipo flotante o entero. La manipulación de este espacio esta administrado por el sistema.
@@ -240,7 +220,7 @@ La \textit{memoria global} es la memoria de lectura/escritura de mayor tamaño e
 
 Para entender el modelo de programación de CUDA, se tiene que tener en cuenta que se debe hacer código para el CPU y el GPU para que estos puedan trabajar en conjunto. El CPU es el equipo anfitrión (Host) el que decidirá cuando necesitara usar al dispositivo (Device) GPU, el anfitrion y el dispositivo también tendrán memorias separadas. 
 \\
-Un Programa en CUDA C se ejecuta como se muestra en la figura 3-10, en el siguiente código se puede ver la estructura básica de un programa, en el cual podemos ver que se declara y definen funciones kernel, también podemos ver que hay funciones ejecutables en el GPU, siendo llamadas desde algún kernel se definiran con la palabra reservada \textbf{\_\_device\_\_}.
+Un Programa en CUDA C se ejecuta como se muestra en la figura 4-10, en el siguiente código se puede ver la estructura básica de un programa, en el cual podemos ver que se declara y definen funciones kernel, también podemos ver que hay funciones ejecutables en el GPU, siendo llamadas desde algún kernel se definiran con la palabra reservada \textbf{\_\_device\_\_}.
 \\
 En la función principal el anfitrión se encargara de obtener los datos que se le proporcionaran y almacenarlos al kernel para ser procesados por el  GPU, también podemos ver como es que se reservara la memoria en el dispositivo para los datos de entrada y salida que el kernel necesite para procesarlos.
 \\

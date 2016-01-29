@@ -1,14 +1,8 @@
- \chapter{ Algoritmos de extracción y descripción de características}
- 
-Las características de los objetos son cualidades que nos servirán para identificarlos dentro de una imagen donde pueden existir objetos similares. Para poder discernir de los objetos que estén en la imagen nos basamos en las características encontradas, que serán encapsuladas en un descriptor. Un descriptor de un objeto es la representación, de una manera reducida, de todas las características que se pueden obtener de toda la información del objeto, esto facilitara la comparación entre los diferentes objetos que existan en una imagen.
-Para extraer las características existen diferentes formas, dependerá de que algoritmo se utilice. Y para generar un descriptor, es la misma situación, dependerá del algoritmo. En este capítulo se explicarán un algoritmo para extraer características y generar su descriptor.   
 
-\pagebreak
-
-\section{Scale-Invariant Feature Transform SIFT}
+\chapter{Scale-Invariant Feature Transform SIFT}
 	El algoritmo de SIFT, propuesto por Lowe en \cite{Lowe2004},  provee un método robusto para la extracción de puntos característicos que se utilizan para generar el descriptor. Los puntos que se encuentran son invariantes a diferentes transformaciones como traslación, escalamiento y rotación. Han mostrado tener un amplio rango de tolerancia a transformaciones afines, adición de ruido y cambios de iluminación. A continuación se describirán los pasos del algoritmo para la generación del conjunto de puntos característicos:
 
-	\subsection{Detección de puntos extremos en el Espacio-Escala} \hfill \\
+	\section{Detección de puntos extremos en el Espacio-Escala} \hfill \\
 		Se realiza una búsqueda en las imágenes en todo el espacio escala, para localizar puntos extremos se debe identificar su ubicación y escala, para volver a encontrarlos no importando la vista o tamaño del mismo objeto.\\
 		El espacio escala es un conjunto de imágenes, que se forman a partir de suavizar la imagen original a diferentes niveles de detalles, los cuales son definidos por un parámetro $\sigma$. Está representado por la función $L(x,y;\sigma)$ la cual se forma por la convolución con $G(x,y;\sigma)$ y la imagen original $I(x,y)$:
 		$$L(x,y;\sigma) = G(x,y;\sigma) * I(x,y)$$
@@ -27,18 +21,18 @@ Para extraer las características existen diferentes formas, dependerá de que a
 		$$ \sigma \nabla^2 G = \frac{ \partial G}{\partial \sigma} \approx  \frac{G(x , y , k \sigma) - G( x , y, k \sigma)}{k \sigma - \sigma}$$
 		y por lo tanto,
 		$$ G(x , y , k \sigma) - G( x , y, k \sigma) \approx (k - 1)\sigma^2 \nabla^2 G $$
-		En la figura 2-1 se puede ver la construcción de $D(x,y,\sigma)$. La imagen inicial se convoluciona con diferentes mascaras gaussianas, para producir imágenes separadas por un factor constante $k$ en el espacio escala. Se divide cada octava del espacio escala entre un numero entero, s, de intervalos entonces $k= 2^\frac{1}{s}$. Se producen $s+3$  imágenes emborronadas en la pila, por octava.
+		En la figura 3-1 se puede ver la construcción de $D(x,y,\sigma)$. La imagen inicial se convoluciona con diferentes mascaras gaussianas, para producir imágenes separadas por un factor constante $k$ en el espacio escala. Se divide cada octava del espacio escala entre un numero entero, s, de intervalos entonces $k= 2^\frac{1}{s}$. Se producen $s+3$  imágenes emborronadas en la pila, por octava.
 		\begin{figure}[h]
 			\centering
-				\includegraphics[scale=0.15]{img/EscalaPuntosExtremos.jpg}
+				\includegraphics[scale=0.3]{img/EscalaPuntosExtremos.jpg}
 			\caption{Espacio Escala de Diferencia de Gaussianas}
 		\end{figure}
-		Para extraer las ubicaciones máximas y mínimas (puntos extremos) en $D(x,y,\sigma)$, cada punto es comparado con sus ocho vecinos en la misma imagen y con sus otros dieciocho vecinos de escala, nueve en la imagen de arriba y nueve en la imagen de abajo (Figura 2-2). Solo se selecciona el punto si es el más grande o el más pequeño de entre todos sus vecinos.
+		Para extraer las ubicaciones máximas y mínimas (puntos extremos) en $D(x,y,\sigma)$, cada punto es comparado con sus ocho vecinos en la misma imagen y con sus otros dieciocho vecinos de escala, nueve en la imagen de arriba y nueve en la imagen de abajo (Figura 3-2). Solo se selecciona el punto si es el más grande o el más pequeño de entre todos sus vecinos.
 	
 	
 
 	
-	\subsection{Localización de puntos característicos} \hfill \\ 
+	\section{Localización de puntos característicos} \hfill \\ 
 		Una vez que se seleccionaron los puntos extremos, se aplica una medida de estabilidad sobre todos para descartar aquellos que no sean adecuados, para obtener puntos  característicos de forma precisa. Existen dos casos donde los puntos extremos anteriormente seleccionados tendrían que ser eliminados:
 	\begin{enumerate}
 		\item El punto tiene un contraste muy bajo.
@@ -70,7 +64,7 @@ Para extraer las características existen diferentes formas, dependerá de que a
 		En la publicación de Lowe \cite{Lowe2004} se encontró un valor experimental para $r=10$, que elimina los puntos extremos que tengan la razón entre las dos curvas mayor que 10.
 	
 	
-	\subsection{Asignación de orientación} \hfill \\
+	\section{Asignación de orientación} \hfill \\
 		Por medio de la asignación de una orientación a cada punto característico, basado en propiedades locales de la imagen, el descriptor que encontremos sera invariante a la rotación. La ubicación en el espacio escala del punto característico, es usada para seleccionar la imagen suavizada por una mascara gaussiana, $L$, esto provocara que sea invariante a la escala. Para cada muestra de la imagen, $L(x,y)$, la magnitud del gradiente, $m(x,y)$, y la orientación ,$\theta(x,y)$, son precalculadas por medio de diferencias de gaussianas:
   		$$m(x,y) = \sqrt{ (L(x+1,y)-L(x-1,y))^2 + (L(x,y+1)-L(x,y-1))^2 }$$		
 		$$\theta(x,y) =  \tan^{-1} \left(\frac{L(x,y+1)-L(x,y-1)}{L(x+1,y)-L(x-1,y)}\right)$$
@@ -79,7 +73,7 @@ Para extraer las características existen diferentes formas, dependerá de que a
 		
 		\begin{figure}[h]
 			\centering
-				\includegraphics[scale=1]{img/HistoOrientacion.png}
+				\includegraphics[scale=0.7]{img/HistoOrientacion.png}
 			\caption{Histograma de Orientación }
 	\end{figure}
 		
@@ -92,7 +86,7 @@ Para extraer las características existen diferentes formas, dependerá de que a
 
 		
 
-\subsection{Descriptor de puntos característicos} \hfill \\
+\section{Descriptor de puntos característicos} \hfill \\
 
 		
 	Hasta este momento tenemos una colección de puntos característicos, los cuales están formados por una ubicación, una escala y una orientación. Ahora debemos formar un descriptor que sea lo suficientemente distintivo. Para esto tenemos que tomar una muestra de la imagen, al rededor del punto característico de $16\times16$ pixeles y se dividirá en una región de $4 \times 4$. Se generará un histograma de orientación de los gradientes de cada región, a diferencia del histograma de orientación explicado anteriormente, el histograma solo tiene 8 divisiones con las cuales se cubrirán los 360 grados, igualmente se usara una ponderación gaussiana para la asignación de la magnitud al histograma.
@@ -101,7 +95,7 @@ Para extraer las características existen diferentes formas, dependerá de que a
  	
 	\begin{figure}[h]
 			\centering
-				\includegraphics[scale=1]{img/Descriptor.png}
+				\includegraphics[scale=0.5]{img/Descriptor.png}
 			\caption{Descriptor }
 	\end{figure}
 		

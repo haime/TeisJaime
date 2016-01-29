@@ -40,40 +40,43 @@ Ahora que tenemos el algoritmo y las herramienta para mejorar su rendimiento por
 
 En esta sección se describe como se comunicaran y sincronizar los procesos, así como la estructura que tomara el algoritmo de SIFT, para poder paralelizarlo con CUDA. 
 
-Primero dividiremos en 6 partes el algoritmo de SIFT, como se muestra en la figura 4-3 , estas partes no se ejecutaran simultáneamente, es solo que el algoritmo es bastante largo y al separarlo en estas partes podemos simplificarlo en diferentes kernels, que tendrán una secuencia de ejecución. 
+Primero dividiremos en 6 partes el algoritmo de SIFT, como se muestra en la figura 5-3 , estas partes no se ejecutaran simultáneamente, es solo que el algoritmo es bastante largo y al separarlo en estas partes podemos simplificarlo en diferentes kernels, que tendrán una secuencia de ejecución. 
 
-\begin{figure}[h]
+
+Los kernels de las diferentes partes del algoritmo tienen una estructura en común, básicamente todos tiene como entrada una o mas imágenes, las cuales serán de solo lectura, y obtendremos una imagen o varias de salida. Cada proceso tendrá una sección de la imagen de tamaño  $N \times N$, la cual puede estar traslapada con la de algún otro proceso, pero esta área no requiere de sincronizar entre procesos ya que solo sera para obtener datos, para procesarlos.En la imagen de salida el proceso se le sera asignado solo un pixel de la imagen para escribir, como se puede mostrar en la figura 5-4 las zonas del P1 y P2 están traslapadas y en la imagen de salida, que es como si tuviera un zoom a los pixeles, no escriben en otro que no sea su pixel. 
+
+\pagebreak
+Los procesos que se ejecutan sobre la imagen tienen la misma especificación, lo que quiere decir que lo que estamos repartiendo entre los múltiples procesos, serán los datos de entrada, con lo cual estaremos en la categoría de paralelismo de \textit{dominio}.
+
+\begin{figure}[ph]
 			\centering
 				\includegraphics[scale=1]{img/SIFTdiv.jpg}
 			\caption{División del algoritmo SIFT a paralelizar}
 \end{figure}
 
 
-
-Los kernels de las diferentes partes del algoritmo tienen una estructura en común, básicamente todos tiene como entrada una o mas imágenes, las cuales serán de solo lectura, y obtendremos una imagen o varias de salida. Cada proceso tendrá una sección de la imagen de tamaño  $N \times N$, la cual puede estar traslapada con la de algún otro proceso, pero esta área no requiere de sincronizar entre procesos ya que solo sera para obtener datos, para procesarlos.En la imagen de salida el proceso se le sera asignado solo un pixel de la imagen para escribir, como se puede mostrar en la figura 4-4 las zonas del P1 y P2 están traslapadas y en la imagen de salida, que es como si tuviera un zoom a los pixeles, no escriben en otro que no sea su pixel. Los procesos que se ejecutan sobre la imagen tienen la misma especificación, lo que quiere decir que lo que estamos repartiendo entre los múltiples procesos, serán los datos de entrada, con lo cual estaremos en la categoría de paralelismo de \textit{dominio}.
-
-
-\begin{figure}[h]
+\begin{figure}[ph]
 			\centering
 				\includegraphics[scale=1]{img/prosImg.jpg}
 			\caption{Proceso general de los kenels }
 \end{figure}
 
-\begin{figure}[h]
+
+
+
+Cada uno de los kernels serán ejecutados múltiples veces, este trabajo sera desempeñado por el anfitrión (CPU) de forma secuencial, esto es importante ya que cada uno de estos kernels es lanzado sin importar que el anterior acabara de ejecutarse, si múltiples kernels son lanzados y tiene la misma especificación pero trabajan con diferentes secciones de los datos no existe problema. Pero si el anfitrión llegara a lanzar un kernel que tiene una especificación diferente a la de un banco de kernels iguales lanzados anteriormente y estos no han finalizado puede existir riesgo de corromper los datos. Entonces debemos de sincronizar , como se puede ver en la figura 5-5, al  dispositivo (GPU) con el anfitrión (CPU) para evitar caer en este tipo de errores.
+
+\begin{figure}[ph]
 			\centering
 				\includegraphics[scale=1]{img/lanzamiento.jpg}
 			\caption{Lanzamiento de Kernels }
 \end{figure}
-\pagebreak
-
-Cada uno de los kernels serán ejecutados múltiples veces, este trabajo sera desempeñado por el anfitrión (CPU) de forma secuencial, esto es importante ya que cada uno de estos kernels es lanzado sin importar que el anterior acabara de ejecutarse, si múltiples kernels son lanzados y tiene la misma especificación pero trabajan con diferentes secciones de los datos no existe problema. Pero si el anfitrión llegara a lanzar un kernel que tiene una especificación diferente a la de un banco de kernels iguales lanzados anteriormente y estos no han finalizado puede existir riesgo de corromper los datos. Entonces debemos de sincronizar , como se puede ver en la figura 4-5, al  dispositivo (GPU) con el anfitrión (CPU) para evitar caer en este tipo de errores.
-
 
 
 \pagebreak
 \section{Implementación}
 
-Ahora que conocemos la estructura general de la solución, plantearé como construí cada una de las partes en las que dividí el algoritmo de SIFT, figura 4-3,  para poder adaptarlo a el modelo de programación de CUDA.
+Ahora que conocemos la estructura general de la solución, plantearé como construí cada una de las partes en las que dividí el algoritmo de SIFT, figura 5-3,  para poder adaptarlo a el modelo de programación de CUDA.
 
 \subsection{Construcción del espacio escala y aproximación a un Laplaciano de Gaussiano}
 
@@ -81,7 +84,7 @@ Recordando un poco, el espacio escala se forma a partir de suavizar la imagen or
 
 $$D(x,y;\sigma) = (G(x,y;k\sigma) - G(x,y;\sigma)) * I(x,y)$$ 
 
-Para ello obtendremos los filtros Gaussianos con la ayuda de la librería OpenCV, y los restamos para así obtener los filtros que aplicaremos en cada octava. Quedando como los de las figura 4-6.
+Para ello obtendremos los filtros Gaussianos con la ayuda de la librería OpenCV, y los restamos para así obtener los filtros que aplicaremos en cada octava. Quedando como los de las figura 5-6.
 
 
 \begin{figure}[h]
@@ -99,6 +102,8 @@ También usaré OpenCV para cambiar el tamaño de las imágenes, para cada octav
 
 La sección de esta parte, de las que dividí el algoritmo, que es altamente paralelizable es al momento de hacer la convolución. Por este motivo lo que hice fue desarrollar un kernel, se puede encontrar en el apéndice A, que realice la convolución de una imagen y un filtro.
 
+\pagebreak
+ 
 La idea es que estos kernels son lanzados por el anfitrión, se lanzaran tantos kernels como imágenes se necesitan para crear el espacio escala. Los kernels sera ejecutados de forma concurrente. 
 
 La funcionalidad del kernel es, para cada pixel en la imagen de salida se asigna un hilo de diferentes bloques, y estos se encargaran con los datos de entrada, la imagen y el filtro, implementar la operación de convolución.\\
@@ -130,12 +135,11 @@ La funcionalidad del kernel es, para cada pixel en la imagen de salida se asigna
 			\caption{Espacio Escala de Diferencia de Gaussianas}
 \end{figure}
 
-\pagebreak
-El resultado es como el de la figura 4-7, tendremos imágenes muy similares para cada una de las octavas. 
+
+El resultado es como el de la figura 5-7, tendremos imágenes muy similares para cada una de las octavas. 
+\\\\\\\\\\\\\\\\\\\\
 
 
-
- 
 \subsection{Detección de puntos característicos}
 En el espacio escala, obtenido anteriormente, buscaré los puntos extremos. A lo que nos referimos con esto es que en $D(x,y,\sigma)$ buscaré las ubicaciones máximas y mínimas, cada punto es comparado con sus ocho vecinos en la misma imagen y con sus otros dieciocho vecinos de escala, nueve en la imagen de arriba y nueve en la imagen de abajo. Solo se selecciona la ubicación si el pixel tiene un valor mayor o menor a todos sus vecinos.\\
 
@@ -179,7 +183,7 @@ Como podemos ver en el algoritmo 2, lo que hacemos en el kernel es a cada hilo s
 			\caption{Mascara}
 \end{figure} 
  
-La imagen de salida terminara siendo una mascara binaria si existe un punto extremo, pondrá un pixel en blanco y donde no lo dejara en negro, como se muestra en la figura 4-8; Podemos encontrar la implementación de este algoritmo en el apéndice B.\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ \pagebreak
+La imagen de salida terminara siendo una mascara binaria si existe un punto extremo, pondrá un pixel en blanco y donde no lo dejara en negro, como se muestra en la figura 5-8; Podemos encontrar la implementación de este algoritmo en el apéndice B.\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ \pagebreak
 
 
 
@@ -218,7 +222,7 @@ Ahora filtraré los puntos extremos que encontramos anteriormente. Existen dos c
 	
 \end{algorithm}
 
-Obtendremos una mascara muy parecida a la de la figura 4-9 pero esta vez tendremos muchos menos pixeles en color blanco. En el apéndice C podemos ver mas detalladamente como es que se realizo la implementación de esta parte de el algoritmo de SIFT.
+Obtendremos una mascara muy parecida a la de la figura 5-9 pero esta vez tendremos muchos menos pixeles en color blanco. En el apéndice C podemos ver mas detalladamente como es que se realizo la implementación de esta parte de el algoritmo de SIFT.
 
 \begin{figure}[h]
 			\centering
@@ -226,7 +230,7 @@ Obtendremos una mascara muy parecida a la de la figura 4-9 pero esta vez tendrem
 			\caption{Mascara Filtrada}
 \end{figure}
 
-\pagebreak
+
 
 \subsection{Asignación de orientación a los puntos característicos}
 
