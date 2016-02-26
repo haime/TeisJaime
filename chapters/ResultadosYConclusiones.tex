@@ -1,11 +1,12 @@
+
+
 \chapter{Resultados y Conclusiones}
 
-Para las pruebas realizadas se utilizo una computadora con un procesador AMD Phenom II 720 con tres núcleos a 2.80Ghz cada núcleo, 10 GB de memoria RAM y una tarjeta gráfica NVIDIA GeForce GTX 650 Ti tiene una arquitectura Kepler con 768 núcleos CUDA, memoria de 2 GB y un ancho de banda para 86.4 GB/s. En cuanto al software las pruebas de hicieron bajo un sistema operativo xubuntu 14.04, utilizando opencv y CUDA 6.5.
+Para las pruebas realizadas se utilizó una computadora con un procesador AMD Phenom II 720 con tres núcleos a 2.80Ghz cada núcleo, 10 GB de memoria RAM y una tarjeta gráfica NVIDIA GeForce GTX 650 Ti tiene una arquitectura Kepler con 768 núcleos CUDA, memoria de 2 GB y un ancho de banda para 86.4 GB/s. En cuanto al software las pruebas de hicieron bajo un sistema operativo xubuntu 14.04, utilizando opencv y CUDA 6.5.
 
 \section{Resultados}
 
-Hay dos imágenes que fueron las que me ayudaron a realizar paso a paso este desarrollo, la primera es la de la Figura 6-1 es un castor y la 
-segunda es la de la Figura 6-2 de un gato. La razón de por la cual tome estas dos imágenes fue, por que la del castor es una imagen pequeña y la de el gato es bastante grande, a su vez el castor cuenta con pocos puntos característicos contrario al gato que en todas las pruebas que realice fue el que más puntos característicos tiene. Lo que quiero dar a entender es que tome los extremos en cuanto a los datos de entrada. 
+Hay dos imágenes que fueron las que me ayudaron a realizar paso a paso este desarrollo, la primera es la de la Figura 6-1 es un castor y la segunda es la de la Figura 6-2 de un gato. La razón de por la cual tome estas dos imágenes fue, por que la del castor es una imagen pequeña y la del gato es bastante grande, a su vez el castor cuenta con pocos puntos característicos contrario al gato que en todas las pruebas que realice fue el que más puntos característicos tiene. Lo que quiero dar a entender es que tome los extremos en cuanto a los datos de entrada. 
 
 \begin{figure}[ph]
 			\centering
@@ -21,7 +22,7 @@ segunda es la de la Figura 6-2 de un gato. La razón de por la cual tome estas d
 \end{figure}
 
 
-La primer prueba que hice con el castor y el gato, consistieron en medir el tiempo que tardaban en ejecutarse ciertas secciones del código de una implementación abierta de SIFT llamada Open SIFT \cite{OpenSIFT}, la cual se usa para la detección de objetos en el robot Justina, y en la implementacion de SIFT con CUDA que realice para obtener los puntos característicos. Podemos observar en las tablas 6-1 y 6-2 los resultados de estas pruebas. Las unidades de el tiempo es en milisegundos.
+La primer prueba que hice con el castor y el gato, consistieron en medir el tiempo que tardaban en ejecutarse ciertas secciones del código de una implementación abierta de SIFT llamada Open SIFT \cite{OpenSIFT}, la cual se usa para la detección de objetos en el robot Justina, y en la implementación de SIFT con CUDA que realice para obtener los puntos característicos. Podemos observar en las tablas 6-1 y 6-2 los resultados de estas pruebas. Las unidades del tiempo son en milisegundos.
 \pagebreak
 
 
@@ -71,7 +72,7 @@ Partes de SIFT & CUDA SIFT & Open SIFT\\
 
 
 L que podemos notar de estos resultados de las tablas 6-1 y 6-2 es la aceleración al crear el espacio escala de DoG es de 1.85 veces más rápido en el GPU, en las secciones de detección y eliminación de Puntos Característicos(PC) tenemos la mayor aceleración, siendo de hasta 40.66 veces más, las anteriores aceleraciones son promedio entre la de la imagen del gato y el castor por que no eran cifras tan lejanas, pero en la parte de la orientación podemos notar como con imágenes más grandes es más rápido procesarlas en el GPU, teniendo una aceleración de 8.10 veces para el gato y solo una aceleración de 1.40 para el castor.\\
-Lo que hice después, fue medir el tiempo en que se tardaban en obtener los puntos característicos 3 diferentes implementaciones, la primera la que desarrolle para CUDA, la de OpenSIFT y por ultimo la que se encuentra en OpenCV. Podemos ver los resultados obtenidos en la tabla 6-3. 
+Lo que hice después, fue medir el tiempo en que se tardaban en obtener los puntos característicos 3 diferentes implementaciones, la primera la que desarrolle para CUDA, la de OpenSIFT y por último la que se encuentra en OpenCV. Podemos ver los resultados obtenidos en la tabla 6-3. 
 
 
 
@@ -218,18 +219,18 @@ Resolución & CUDA SIFT & Open SIFT & Opencv SIFT & Puntos Característicos\\
 \label{tabla:final}
 \end{table}
 
-Un factor que creí afectaría el tiempo de ejecución de todos los programas fue la cantidad de puntos característicos que existen en la imagen, cosa que no paso, podemos observar como se repite el fenómeno que notamos con el castor y el gato. Entre más grande es la imagen obtenemos una aceleración más grande esto paso para todos los casos en las imágenes anteriores. Me parece importante mencionar que el tiempo medido en las tablas incluye el cuello de botella que existe al estar pasando datos de la memoria RAM de la computadora a la memoria de la GPU.     
+Un factor que creí afectaría el tiempo de ejecución de todos los programas fue la cantidad de puntos característicos que existen en la imagen, cosa que no paso, podemos observar cómo se repite el fenómeno que notamos con el castor y el gato. Entre más grande es la imagen obtenemos una aceleración más grande esto paso para todos los casos en las imágenes anteriores. Me parece importante mencionar que el tiempo medido en las tablas incluye el cuello de botella que existe al estar pasando datos de la memoria RAM de la computadora a la memoria de la GPU.     
 
 \pagebreak
 \section{Conclusiones}
 
- Las pruebas a las que es sometido el robot de servicio Justina, cada vez son más rigurosas,los sistemas deben ser cada vez más rápidos y confiables. También las nuevas generaciones de sensores son mucho mejores tenemos más información para analizar, actualmente se utiliza un sensor Kinect para obtener las imágenes, esta tiene una resolución de  640 x 480 px y se utiliza el código de openSIFT para procesar esta imágenes, después     se adquirió una cámara RGB logitech C920 que tiene una  de 1920 x 1080 px, el procesamiento de la imagen fue mucho más lento. Se planea empezar a usar también el nuevo sensor de Microsoft Kinect 2 el cual también tiene una resolución de 1920 x 1080 px. 
+ Las pruebas a las que es sometido el robot de servicio Justina, cada vez son más rigurosas, los sistemas deben ser cada vez más rápidos y confiables. También las nuevas generaciones de sensores son mucho mejores tenemos más información para analizar, actualmente se utiliza un sensor Kinect para obtener las imágenes, esta tiene una resolución de  640 x 480 px y se utiliza el código de openSIFT para procesar esta imágenes, después     se adquirió una cámara RGB Logitech C920 que tiene una  de 1920 x 1080 px, el procesamiento de la imagen fue mucho más lento. Se planea empezar a usar también el nuevo sensor de Microsoft Kinect 2 el cual también tiene una resolución de 1920 x 1080 px. 
  
  
- Los resultados obtenidos tiene dos matices a mi parecer, donde las imágenes son muy pequeñas y hay poco que procesar , cuando el robot necesita encontrar objetos en una mesa, segmenta los objetos de la mesa y quedan solo los objetos, que no tienen una cantidad muy grande de pixeles a procesar, por lo que aun que es un poco más rápido procesarlos en el GPU, no tiene gran aceleración en comparación a la librería de OpenCV y es mucho más sencillo implementarlo; la otra parte es que se ha estado trabajando para que Justina no solo encuentre objetos en la mesa sino que debe tener capacidad para encontrarlos en un libreo o estante. En el laboratorio de BioRobotica de la UNAM  se ha estado tratando de segementar estos estantes o libreros para poder seguir con la misma metodología al momento de buscar objetos, cosa que no se a logrado con éxito total. Lo que se implemento fue hacer una búsqueda de los objetos en toda la imagen, para esto se intento hacer con las imágenes que entrega el Kinect, pero la baja calidad de la imagen no permitía encontrar los objetos, ya que la distancia de donde se tomaba la foto era más lejos de lo que acostumbra ser.
- Se cambio la fuente de la imagen por la cámara C920 y los resultados mejoraron, pero el tiempo de procesamiento aumento.
+ Los resultados obtenidos tiene dos matices a mi parecer, donde las imágenes son muy pequeñas y hay poco que procesar , cuando el robot necesita encontrar objetos en una mesa, segmenta los objetos de la mesa y quedan solo los objetos, que no tienen una cantidad muy grande de pixeles a procesar, por lo que aun que es un poco más rápido procesarlos en el GPU, no tiene gran aceleración en comparación a la librería de OpenCV y es mucho más sencillo implementarlo; la otra parte es que se ha estado trabajando para que Justina no solo encuentre objetos en la mesa sino que debe tener capacidad para encontrarlos en un libreo o estante. En el laboratorio de BioRobotica de la UNAM  se ha estado tratando de segmentar estos estantes o libreros para poder seguir con la misma metodología al momento de buscar objetos, cosa que no se ha logrado con éxito total. Lo que se implemento fue hacer una búsqueda de los objetos en toda la imagen, para esto se intentó hacer con las imágenes que entrega el Kinect, pero la baja calidad de la imagen no permitía encontrar los objetos, ya que la distancia de donde se tomaba la foto era más lejos de lo que acostumbra ser.
+ Se cambió la fuente de la imagen por la cámara C920 y los resultados mejoraron, pero el tiempo de procesamiento aumento.
 
-EL robot Justina participa en una competencia principalmente llamada Robocup, en 2015 se puso una nueva prueba llamada  \textit{Manipulation and object recognition} donde se tenia que buscar objetos en un librero y manipularlos básicamente. Para esta prueba solo dan 3 minutos para reconocer y manipular objetos,  de los cuales nosotros gastamos todo el tiempo solo reconociendo, ya que con una sola foto no podríamos analizar todos los objetos que  hay en el librero, por lo cual hay que hacer varias tomas de diferente ángulos.
+EL robot Justina participa en una competencia principalmente llamada Robocup, en 2015 se puso una nueva prueba llamada  \textit{Manipulation and object recognition} donde se tenía que buscar objetos en un librero y manipularlos básicamente. Para esta prueba solo dan 3 minutos para reconocer y manipular objetos,  de los cuales nosotros gastamos todo el tiempo solo reconociendo, ya que con una sola foto no podríamos analizar todos los objetos que  hay en el librero, por lo cual hay que hacer varias tomas de diferente ángulos.
 
 
  
@@ -240,14 +241,6 @@ EL robot Justina participa en una competencia principalmente llamada Robocup, en
 \nocite{AI Shack}
 
 
-
- 
- 
- 
- 
- 
- 
- 
  
  
 
