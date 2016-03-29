@@ -1,4 +1,4 @@
-\chapter{GP-GPU Nvidia}
+\chapter{Unidad de Procesamiento de Graficos de Proposito General }
 
 "Las GPU han evolucionado al punto que muchas aplicaciones del mundo real se están implementando fácilmente en ellas y se ejecutan muchísimo más rápido que en sistemas con múltiples núcleos. Las arquitecturas de computación del futuro serán sistemas híbridos con GPU de núcleos paralelos trabajando en tándem con CPU de múltiples núcleos".\cite{GPUIntro}
 
@@ -19,8 +19,8 @@ Fue hasta 2001, en la Universidad de Stanford un equipo, liderado por Ian Buck, 
 
 La compañía NVIDIA se dio cuenta que tenía un hardware muy poderoso en las manos, pero debía complementarlo con herramientas de hardware y software intuitivas, con ello le hicieron la invitación a Ian Buck para colaborar con ellos, el objetivo sería ejecutar C a la perfección en una GPU. NVIDIA alcanza este objetivo en 2006 con el lanzamiento de CUDA, la cual sería la primera solución para las GP-GPU, y aunado a esta solución, lanza la GeForce 8800 la cual fue diseñada, para ser usada en cómputo de propósito general, y su arquitectura fue pensada en la de CUDA. 
 
-\pagebreak
-\section{CUDA}
+
+\section{Plataforma y modelo de programación de computo paralelo}
 Compute Unified Device Architecture (CUDA) es una plataforma para computo paralelo y un modelo de programación, que NVIDIA lanzo en noviembre de 2006, permitiendo obtener aumentos en los rendimientos del cómputo, esto es gracias a la ayuda que la unidad de procesamiento de gráficos, le proporciona al CPU. 
 
 Los dispositivos CUDA aceleran la ejecución de los programas que tienen una gran cantidad de datos a procesar, ya que la arquitectura de esta plataforma, de la cual se hablara adelante, es como un procesador tradicional como el que las computadoras tienen, solo que tienen la cualidad de que los procesadores son masivamente paralelos equipados con una gran cantidad de unidades aritméticas. En las cuales se ejecutara la misma instrucción en todas, respecto a la taxonomía de Flynn, la categoría seria de \textit{una instrucción, múltiples datos} (SIMD). 
@@ -73,13 +73,8 @@ Las unidades load/store aumentaron a 32 y las SFU también incrementaron a 32, o
 \end{figure}
 
 La capacidad de esta memoria es de 64KB, se pueden tener las configuraciones de 16, 32 o 48 KB para la memoria cache, dejando el resto para la memoria compartida. La cantidad de registros por SMX es de 65536, de los cuales, cada hilo puede tener acceso a 255 registros para el almacenamiento de datos. La memoria de textura ha sido un recurso valioso para para programas donde se requiere probar o filtrar datos de una imagen, en esta arquitectura dejo de ser un hardware dedicado solo a este objetivo, se dejó un espacio en la memoria global de solo lectura de 48KB que funciona como una memoria cache para agilizar las lecturas.
-
-
-
-En esta arquitectura se agregó una característica, donde no se requiere del CPU para lanzar programas en la GPU, lo que significa que el GPU tiene la capacidad de generar más carga de trabajo, administrar recursos y obtener resultados dentro de la misma GPU, en la zona de más interés, donde se pueda requerir más poder de computo. \\\\\\\\
-
-
-
+En esta arquitectura se agregó una característica, donde no se requiere del CPU para lanzar programas en la GPU, lo que significa que el GPU tiene la capacidad de generar más carga de trabajo, administrar recursos y obtener resultados dentro de la misma GPU, en la zona de más interés, donde se pueda requerir más poder de computo. 
+\pagebreak
 \subsubsection{Maxwell}
 La arquitectura Maxwell\cite{Maxwell}, tuvo un cambio en su diseño para proporcionar un cambio dramático en su desempeño. Lo que genero este desempeño fue el nuevo diseño que le dieron a los nuevos SM llamados SM Maxwell (SMM). El número de CUDA cores bajo a 128, para poder separarlos en 4 divisiones de 32 CUDA cores, cada una de esas divisiones tiene un planificador de warps, para su bloque de 32 CUDA cores, el cual es capaz de despachar dos instrucciones por ciclo de reloj. Estas divisiones hicieron que se utilizara de una manera más eficiente el espacio y la energía gastada para el manejo de la transferencia de datos.
 
@@ -90,11 +85,8 @@ La arquitectura Maxwell\cite{Maxwell}, tuvo un cambio en su diseño para proporc
 			\caption{Maxwell Streaming Multiprocessor (SMM) \cite{Maxwell}}
 \end{figure}
 
-La memoria compartida incremento a 96KB, la cual ya no se comparte con la memoria cache L1, ahora la memoria de textura comparte espacio con la cache L1. Los registros, las SFU, y las unidades load/store siguen siendo la misma cantidad.\pagebreak
-
-
-
-
+La memoria compartida incremento a 96KB, la cual ya no se comparte con la memoria cache L1, ahora la memoria de textura comparte espacio con la cache L1. Los registros, las SFU, y las unidades load/store siguen siendo la misma cantidad.
+\\\\\\\\\\\\\\\\\\\\\\\\\
 
 
 \section{Modelo de Programación CUDA C}
@@ -117,7 +109,7 @@ En CUDA C, permite definir funciones llamadas \textit{kernels}, las cuales cuand
 \begin{lstlisting}[caption=Declaración de un Kernel en CUDA C.]
 	__global__ void kernel( ... )
     {
-   		...
+   	  ...
     }
 
 \end{lstlisting}
@@ -156,15 +148,15 @@ A continuación veremos un ejemplo de cómo se lanzaría un kernel:
 \begin{lstlisting}[caption=Lanzamiento de un Kernel en CUDA C.]
 	__global__ void miKernel( ... )
     {
-   		...
+   	  ...
     }
 	int main(...)
 	{
-		...	
-		dim3 gridDim(...,...,...);
-		dim3 blockDim(...,...,...);
-		miKernel<<<gridDim,blockDim>>>(...);	
-		...
+	  ...	
+	  dim3 gridDim(...,...,...);
+	  dim3 blockDim(...,...,...);
+	  miKernel<<<gridDim,blockDim>>>(...);	
+	  ...
 	}
 \end{lstlisting}
 
@@ -175,7 +167,7 @@ A continuación veremos un ejemplo de cómo se lanzaría un kernel:
 \end{figure}
 
 \pagebreak
-Parte importante del paralelismo es la comunicación entre cada proceso que se ejecuta simultáneamente, hacer cooperar los hilos en la GPU tiene sus detalles. Para la comunicación tenemos la memoria compartida a la cual permite el intercambio de datos solo entre hilos del mismo bloque. En cuanto a sincronizar los hilos se tiene una función llamada \textbf{\_\_syncthreads()}, esta sincroniza los hilos por barrera, pero los hilos que esperaran solo lo harán con hilos de su mismo bloque. Esta característica de que solo hilos del mismo bloque se puedan comunicar es por la forma en que son asignados para su ejecución cada uno de los bloques. En la figura 4-8 podemos observar cómo se asignan los bloques a cada SM por lo tanto podrían asignarse en cualquier orden y ejecutarse en tiempos diferentes. De este modo la sincronizar los hilos y la escritura y lectura a memoria compartida no serán un problema con el diseño que se describió anteriormente.
+Parte importante del paralelismo es la comunicación entre cada proceso que se ejecuta simultáneamente, hacer cooperar los hilos en la GPU tiene sus detalles. Para la comunicación tenemos la memoria compartida a la cual permite el intercambio de datos solo entre hilos del mismo bloque. En cuanto a sincronizar los hilos se tiene una función llamada \textbf{\_\_syncthreads()}, esta sincroniza los hilos por barrera, pero los hilos que esperaran solo lo harán con hilos de su mismo bloque. Esta característica de que solo hilos del mismo bloque se puedan comunicar es por la forma en que son asignados para su ejecución cada uno de los bloques. En la figura 3-8 podemos observar cómo se asignan los bloques a cada SM por lo tanto podrían asignarse en cualquier orden y ejecutarse en tiempos diferentes. De este modo la sincronizar los hilos y la escritura y lectura a memoria compartida no serán un problema con el diseño que se describió anteriormente.
 
 
 
@@ -218,7 +210,7 @@ La \textit{memoria global} es la memoria de lectura/escritura de mayor tamaño e
 
 Para entender el modelo de programación de CUDA, se tiene que tener en cuenta que se debe hacer código para el CPU y el GPU para que estos puedan trabajar en conjunto. El CPU es el equipo anfitrión (Host) el que decidirá cuándo necesitara usar al dispositivo (Device) GPU, el anfitrión y el dispositivo también tendrán memorias separadas. 
 \\
-Un Programa en CUDA C se ejecuta como se muestra en la figura 4-10, en el siguiente código se puede ver la estructura básica de un programa, en el cual podemos ver que se declara y definen funciones kernel, también podemos ver que hay funciones ejecutables en el GPU, siendo llamadas desde algún kernel se definirán con la palabra reservada \textbf{\_\_device\_\_}.
+Un Programa en CUDA C se ejecuta como se muestra en la figura 3-10, en el siguiente código se puede ver la estructura básica de un programa, en el cual podemos ver que se declara y definen funciones kernel, también podemos ver que hay funciones ejecutables en el GPU, siendo llamadas desde algún kernel se definirán con la palabra reservada \textbf{\_\_device\_\_}.
 \\
 En la función principal el anfitrión se encargara de obtener los datos que se le proporcionaran y almacenarlos al kernel para ser procesados por el  GPU, también podemos ver cómo es que se reservara la memoria en el dispositivo para los datos de entrada y salida que el kernel necesite para procesarlos.
 \\
@@ -243,29 +235,29 @@ La final solo queda liberar los recursos que ya no serán utilizados.
 	{ ... }	
 	__global__ void KernelUno(L*, ... )
     {
-    	...
-   		L r= fooDevice();
-   		...
+      ...
+   	  L r= fooDevice();
+   	  ...
     }
     __global__ void KernelDos( ... )
     { ... }    
     int main(...)
-	{	...
-		L* datosD;
-		cudaMalloc(&datosD,size);
-		...		
-		cudaMemcpy(datosD,src,size,cudaMemcpyHostToDevice);		
-		...	
-		dim3 gridDim(...,...,...);
-		dim3 blockDim(...,...,...);
-		KernelUno<<<gridDim,blockDim>>>(datosD,...);	
-		...
-		KernelDos<<<...,...>>>(...);
-		...
-		cudaMemcpy(res,datosD,size,cudaMemcpyHostToDevice);
-		...
-		cudaFree(datosD);
-		...			
+	{ ...
+	  L* datosD;
+	  cudaMalloc(&datosD,size);
+	  ...		
+	  cudaMemcpy(datosD,src,size,cudaMemcpyHostToDevice);		
+	  ...	
+	  dim3 gridDim(...,...,...);
+	  dim3 blockDim(...,...,...);
+	  KernelUno<<<gridDim,blockDim>>>(datosD,...);	
+	  ...
+	  KernelDos<<<...,...>>>(...);
+	  ...
+	  cudaMemcpy(res,datosD,size,cudaMemcpyHostToDevice);
+	  ...
+	  cudaFree(datosD);
+	  ...			
 	}
 \end{lstlisting}
 

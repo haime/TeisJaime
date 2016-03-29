@@ -1,18 +1,16 @@
 \chapter{Introducción}
 
 \section{Contexto}
-Los robots móviles rigen su comportamiento en base a el software, dependiendo de cuanta interacción tenga el robot con su entorno, podría llegar a ser más complejo que todo hardware que lo conforma. Una parte importante de este software, es la forma en la que el robot puede obtener datos para darles un significado e interpretarlos. 
+Los robots móviles rigen su comportamiento con base en el software, dependiendo de cuánta interacción tenga el robot con su entorno, podría llegar a ser más complejo que el hardware que lo conforma. Una parte importante de este software es la forma en la que el robot puede obtener datos para darles un significado e interpretarlos. 
 
-El sistema de visión humano, es al que más recurre para obtener información de su entorno. Por ello no es de extrañarse que la visión computacional, en la robótica, tenga una participación muy importante, porque estas máquinas empiezan a ser utilizadas, para tareas que antes solo los humanos realizaban. Entonces las deben realizar de una manera adecuada y en tiempo. 
+La vista es a lo que más recurre un ser humano para obtener información de su entorno. Por ello no es de extrañarse que la visión computacional, en la robótica, tenga una participación muy importante, porque estas máquinas empiezan a ser utilizadas, para tareas que antes solo los humanos realizaban. Entonces las deben realizar de una manera adecuada y en tiempo. 
 
-El tiempo es preciado en cualquier rama y esta no es la excepción, la forma de ganar tiempo que se ha venido sesgando por hardware es el paralelismo, y no solo hablo de procesadores multinúcleo, las tarjetas gráficas se pueden programar para realizar tareas de propósito general.   
-
-\pagebreak
+El tiempo en el que se realizan las actividades en cualquier ámbito siempre ha sido importante, la forma de ganar tiempo que se ha venido sesgando por hardware es el paralelismo, y no se trata solo de procesadores multinúcleo, las unidades de procesamiento gráfico(GPU) se pueden programar para realizar tareas de propósito general.   
 
 \section{Problema a resolver}
-Los algoritmos que se utilizan, en visión computacional muchas veces son muy confiables, pero consumen mucho tiempo de procesador, por esto se ha tratado de hacer más eficientes estos algoritmos, pero provoca que  la confiabilidad de estos disminuya. El tiempo en el cual se adquieren y procesa la información, es crucial en la actividad de un robot, de esto depende que decisión tomara.\\
+Los algoritmos que se utilizan, en visión computacional la mayor parte de las veces son muy confiables, pero consumen mucho tiempo de procesador, por esto se ha tratado de hacer más eficientes estos algoritmos, pero provoca que  la confiabilidad de estos disminuya. El tiempo en el cual se adquieren y procesa la información, es crucial en la actividad de un robot, de esto depende que decisión tomara.\\
 
-Con lo anteriormente dicho, lo importante es el tiempo en que procesemos los datos, para tomar una decisión, pero igual de importante es que la información obtenida sea congruente. \\
+Con base en lo anterior, lo importante es el tiempo en que procesemos los datos, para tomar una decisión, pero igual de importante es que la información obtenida sea congruente. \\
 
 En muchos casos, el software que funciona en paralelo es más rápido que el secuencial, podemos ver que los algoritmos que se manejan en visión computacional son siempre secuenciales. Otro punto importante son los recursos, como procesador y memoria de la computadora del robot, siempre estarán siendo demandados por otros módulos del robot.    \\
 
@@ -21,13 +19,13 @@ En muchos casos, el software que funciona en paralelo es más rápido que el sec
 La finalidad del presente documento es  confirmar la siguiente hipótesis:
 
 \begin{center}
-\textit{"Por medio del uso de las tarjetas gráficas, usando computo heterogéneo, tener un mejor desempeño, en cuanto al tiempo en el que se ejecutan, de algoritmos de visión computacional, que ejecutándose de manera secuencial son robustos pero lentos"}
+\textit{"Por medio del uso de unidades de procesamiento gráfico de propósito general, tener un mejor desempeño, en cuanto al tiempo en el que se ejecuta, de un algoritmo para encontrar puntos característicos que sean invariantes a transformaciones afines"}
 
 \end{center}
 
-Respecto al alcance, se considerara valida la hipótesis, si se pueden obtener los puntos característicos de una imagen, con los cuales se podrían encontrar descriptores para su comparación, obtenida con las cámaras montadas en un robot móvil. El desempeño se medirá comparando el tiempo que se obtuvo, con el sistema actual del robot y el que se propone.  \\
+Respecto al alcance, se considerara valida la hipótesis, si se pueden obtener los puntos característicos de una imagen, con los cuales se podrían encontrar descriptores para su comparación. El desempeño se medirá comparando el tiempo que se obtiene, con el sistema actual del robot y el que se propone.  \\
 
-\pagebreak
+
 
 \section{Estructura de la tesis}
 \begin{enumerate}
@@ -37,22 +35,20 @@ Respecto al alcance, se considerara valida la hipótesis, si se pueden obtener l
 
 \item Introducción. En este capítulo se presenta de lo que tratara en general este trabajo de tesis, planteando el contexto en el que se trabaja, el problema a resolver, la hipótesis y cuál sería el alcance de este trabajo.\\
 
-\item Marco Teórico. Se verán dos puntos importantes que son la extracción y descripción de las características de una imagen; y también hablaremos como es que ha venido cambiado los procesadores, hasta poder llegar a el computo en las GPU.\\
-
-\item Scale-Invariant Feature Transform. En este capítulo se explica el proceso para extraer puntos característicos y obtener el descriptor de cada uno de estos, de una manera que sean tolerables a diferentes transformaciones, por medio del algoritmo de SIFT.\\
+\item Marco Teórico. Se verán dos puntos importantes que son la extracción y descripción de las características de una imagen, aunado a esto  se explica el proceso para extraer puntos característicos y obtener el descriptor de cada uno de estos, de una manera que sean tolerables a diferentes transformaciones, por medio del algoritmo de SIFT; y como es que han venido cambiado los procesadores, hasta poder llegar a el computo en las GPU.\\
 
 
-\item GP-GPUs Nvidia.  Este capítulo tratara de cómo ha cambiado, los procesadores multinúcleo, la forma en la que programamos y sobre todo el cómputo en cooperación con las tarjetas gráficas. Nos enfocaremos en las GPU de la familia de Nvidia, se verá un poco de la historia de estos multiprocesadores, su arquitectura y el modo en que podemos programar estos dispositivos, que ya no son solo utilizados en gráficos.\\
+\item Unidad de Procesamiento de Gráficos de Propósito General .  Este capítulo tratara de cómo han cambiado, los procesadores multinúcleo, la forma en la que programamos y sobre todo el cómputo en cooperación con las tarjetas gráficas. Nos enfocaremos en las GPU de la familia de Nvidia, se verá un poco de la historia de estos multiprocesadores, su arquitectura y el modo en que podemos programar estos dispositivos, que ya no son solo utilizados en gráficos.\\
 
 
-\item SIFT en GPU. Presentará brevemente puntos importantes al momento de paralelizar un algoritmo.
-Se tratara como es que proponemos dividir el algoritmo e SIFT para que sea más sencillo el proceso de paralelizarlo y como trabajan los kernels en general para este caso.
-Más adelante tomaremos una a una las secciones en las que dividimos el algoritmo y explicaremos como es que están estructuradas.\\
+\item SIFT en GPU. Se presentaran puntos importantes al momento de paralelizar un algoritmo.
+Como es que se propone dividir el algoritmo de SIFT, para que sea más sencillo el proceso de paralelizarlo y como trabajan los kernels en general para este caso.
+Más adelante se explica como es que están estructuradas una a una las secciones, en las que dividimos el algoritmo.\\
 
 
-\item Resultado y Conclusiones. Haremos comparativas entre el tiempo que nos toma obtener los descriptores SIFT con el sistema propuesto y algunos otros ya implementados como la librería OpenSIFT y OpenCV.\\
+\item Pruebas y Resultado. Se compara el tiempo que nos toma obtener los puntos característicos SIFT con el sistema propuesto y algunos otros ya implementados como la librería OpenSIFT y OpenCV.\\
 
-\item Trabajo a Futuro. Aun implementado el algoritmo para las GPU de Nvidia existe una gama muy variada, en general el siguiente paso es adaptar esta implementación al GPU de la computadora del robot para tener un mejor desempeño.\\
+\item Conclusiones y Trabajo a Futuro. Aun implementado el algoritmo para las GPU de Nvidia existe una gama muy variada, en general el siguiente paso es adaptar esta implementación al GPU de la computadora del robot para obtener un mejor desempeño.\\
 
 \end{enumerate}
 
