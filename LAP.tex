@@ -1,16 +1,16 @@
-\documentclass[11pt,spanish,a4paper]{report}
+\documentclass[12pt,spanish]{report}
 %\usepackage[square]{natbib}
 \usepackage[spanish,activeacute,mexico]{babel}
 \usepackage{listings}
 \usepackage{color}
+\usepackage[utf8]{inputenc}
 \addto\captionsspanish{
-  \renewcommand{\contentsname}%
+	\renewcommand{\contentsname}%
     {Tabla de Contenido}%
+    \renewcommand{\lstlistingname}%
+    {Código}%
 }
 
-
-
-\usepackage[utf8]{inputenc}
 \usepackage{TemplateFiles/UNAMThesis}
 \usepackage{amsmath}
 %\usepackage{amsfonts}
@@ -25,11 +25,15 @@
 %\usepackage[Rejne]{fncychap}
 \usepackage{fancyhdr}
 \usepackage{fancyvrb}
-\usepackage[caption=false]{subfig}
+%\usepackage[caption=false]{subfig}
 \usepackage[width=16.5cm,top=2.5cm,bottom=2.5cm,headsep=1cm,bindingoffset=6mm]{geometry}
 \usepackage{alltt}
 \usepackage{hyperref}
-
+\usepackage{setspace}  
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
 \pagestyle{plain}
 
 \logounam{escudo_UNAM}
@@ -70,7 +74,7 @@
 \author{Jaime Alan Márquez Montes}
 
 \institute{Posgrado en Ciencia e Ingeniería de la Computación}
-\department{Laboratorio de Bio-Robótica}
+
 \degree{Maestro en Ingeniería en Computación}
 
 \supervisor{Dr. Jesús Savage Carmona \\ Dr. Jose David Flores Peñaloza }
@@ -81,7 +85,7 @@
 
 \pdfbookmark[0]{Portada}{portada}
 \maketitle
-
+\spacing{1.5}
 \begin{dedication}
 Dedicatorias...........
 			\\...........
@@ -108,6 +112,12 @@ Agradecimientos...........
 \pagestyle{fancy}
 \renewcommand{\chaptermark}[1]{\markboth{}{}}
 \pagenumbering{arabic}
+
+
+
+
+
+
 
 \include{chapters/Introduccion}
 \include{chapters/MarcoT}

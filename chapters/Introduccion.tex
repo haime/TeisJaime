@@ -1,56 +1,27 @@
 \chapter{Introducción}
-
+\spacing{1.5}
 \section{Contexto}
-Los robots móviles rigen su comportamiento con base en el software, dependiendo de cuánta interacción tenga el robot con su entorno, podría llegar a ser más complejo que el hardware que lo conforma. Una parte importante de este software es la forma en la que el robot puede obtener datos para darles un significado e interpretarlos. 
-
-La vista es a lo que más recurre un ser humano para obtener información de su entorno. Por ello no es de extrañarse que la visión computacional, en la robótica, tenga una participación muy importante, porque estas máquinas empiezan a ser utilizadas, para tareas que antes solo los humanos realizaban. Entonces las deben realizar de una manera adecuada y en tiempo. 
-
-El tiempo en el que se realizan las actividades en cualquier ámbito siempre ha sido importante, la forma de ganar tiempo que se ha venido sesgando por hardware es el paralelismo, y no se trata solo de procesadores multinúcleo, las unidades de procesamiento gráfico(GPU) se pueden programar para realizar tareas de propósito general.   
+Los robots móviles rigen su comportamiento con base en software que podría llegar a ser más complejo que el hardware que lo conforma. La complejidad del software dependerá  de cuánta interacción tenga el robot con su entorno. Una  parte esencial del software es la forma de interpretar y darle significado a los datos obtenidos de los diferentes sensores del robot. \\
+La vista es a lo que más recurre un ser humano para obtener información de su entorno. Por ello no es de extrañarse que la visión computacional tenga una participación muy importante en la robótica, porque estas máquinas empiezan a ser utilizadas para tareas que antes solo los humanos realizaban, mismas que deben realizar de una manera adecuada y en tiempo.\\
+El tiempo en el que se realizan las actividades en cualquier ámbito siempre ha sido importante. El paralelismo es la forma por la cual optaron los nuevos procesadores para mejorar su velocidad, ya que solo incrementar el número de pulsos de reloj por segundo implica problemas como la disipación de calor. Pero no todo es procesadores multinúcleo, las unidades de procesamiento gráfico por sus siglas en ingles GPU se pueden programar para realizar tareas de propósito general.\\
 
 \section{Problema a resolver}
-Los algoritmos que se utilizan, en visión computacional la mayor parte de las veces son muy confiables, pero consumen mucho tiempo de procesador, por esto se ha tratado de hacer más eficientes estos algoritmos, pero provoca que  la confiabilidad de estos disminuya. El tiempo en el cual se adquieren y procesa la información, es crucial en la actividad de un robot, de esto depende que decisión tomara.\\
-
-Con base en lo anterior, lo importante es el tiempo en que procesemos los datos, para tomar una decisión, pero igual de importante es que la información obtenida sea congruente. \\
-
-En muchos casos, el software que funciona en paralelo es más rápido que el secuencial, podemos ver que los algoritmos que se manejan en visión computacional son siempre secuenciales. Otro punto importante son los recursos, como procesador y memoria de la computadora del robot, siempre estarán siendo demandados por otros módulos del robot.    \\
+Los algoritmos que se utilizan en visión computacional aunque confiables consumen mucho tiempo de procesador, por lo cual se ha tratado de hacer más eficientes estos algoritmos, pero provocando que  la confiabilidad disminuya. El tiempo en el cual se adquiere y procesa la información es crucial en la actividad de un robot, pues de esto depende que decisión tomara.\\
+Con base en lo anterior, tan importante es el tiempo en que procesemos los datos, para tomar una decisión, como importante es que la información obtenida sea congruente. En muchos casos, el software que se ejecuta en paralelo es más rápido que el secuencial. Los algoritmos que se manejan en visión computacional son  casi siempre secuenciales. Otro punto importante es que recursos como el procesador y la memoria de la computadora del robot siempre estarán siendo demandados por otros módulos del robot.\\
 
 \section{Hipótesis} 
-
 La finalidad del presente documento es  confirmar la siguiente hipótesis:
-
 \begin{center}
-\textit{"Por medio del uso de unidades de procesamiento gráfico de propósito general, tener un mejor desempeño, en cuanto al tiempo en el que se ejecuta, de un algoritmo para encontrar puntos característicos que sean invariantes a transformaciones afines"}
-
+\textit{"Por medio del uso de unidades de procesamiento gráfico de propósito general tener un mejor desempeño en la ejecución del algoritmo SIFT paralelo, comparado con una implementación secuencial del mismo"}
 \end{center}
-
-Respecto al alcance, se considerara valida la hipótesis, si se pueden obtener los puntos característicos de una imagen, con los cuales se podrían encontrar descriptores para su comparación. El desempeño se medirá comparando el tiempo que se obtiene, con el sistema actual del robot y el que se propone.  \\
-
-
+Respecto al alcance, se considerara valida la hipótesis si se pueden obtener los puntos característicos de una imagen con los cuales se podrían encontrar descriptores para su comparación. El desempeño se mide comparando el tiempo de ejecución entre el sistema actual del robot y el propuesto.\\
 
 \section{Estructura de la tesis}
-\begin{enumerate}
-
-
-
-
-\item Introducción. En este capítulo se presenta de lo que tratara en general este trabajo de tesis, planteando el contexto en el que se trabaja, el problema a resolver, la hipótesis y cuál sería el alcance de este trabajo.\\
-
-\item Marco Teórico. Se verán dos puntos importantes que son la extracción y descripción de las características de una imagen, aunado a esto  se explica el proceso para extraer puntos característicos y obtener el descriptor de cada uno de estos, de una manera que sean tolerables a diferentes transformaciones, por medio del algoritmo de SIFT; y como es que han venido cambiado los procesadores, hasta poder llegar a el computo en las GPU.\\
-
-
-\item Unidad de Procesamiento de Gráficos de Propósito General .  Este capítulo tratara de cómo han cambiado, los procesadores multinúcleo, la forma en la que programamos y sobre todo el cómputo en cooperación con las tarjetas gráficas. Nos enfocaremos en las GPU de la familia de Nvidia, se verá un poco de la historia de estos multiprocesadores, su arquitectura y el modo en que podemos programar estos dispositivos, que ya no son solo utilizados en gráficos.\\
-
-
-\item SIFT en GPU. Se presentaran puntos importantes al momento de paralelizar un algoritmo.
-Como es que se propone dividir el algoritmo de SIFT, para que sea más sencillo el proceso de paralelizarlo y como trabajan los kernels en general para este caso.
-Más adelante se explica como es que están estructuradas una a una las secciones, en las que dividimos el algoritmo.\\
-
-
-\item Pruebas y Resultado. Se compara el tiempo que nos toma obtener los puntos característicos SIFT con el sistema propuesto y algunos otros ya implementados como la librería OpenSIFT y OpenCV.\\
-
-\item Conclusiones y Trabajo a Futuro. Aun implementado el algoritmo para las GPU de Nvidia existe una gama muy variada, en general el siguiente paso es adaptar esta implementación al GPU de la computadora del robot para obtener un mejor desempeño.\\
-
-\end{enumerate}
+En el capítulo Marco Teórico se consideran dos puntos importantes que son la extracción y descripción de las características de una imagen. Aunado a esto  se explica el proceso para extraer puntos característicos y obtener el descriptor de cada uno de estos de una manera que sean tolerantes a diferentes transformaciones por medio del algoritmo de SIFT, y como es que han venido cambiado los procesadores hasta poder llegar a el computo en las GPU.\\
+El capítulo Unidad de Procesamiento de Gráficos de Propósito General  se enfoca en cómo han cambiado los procesadores multinúcleo, la forma en la que los programamos y sobre todo el cómputo en cooperación con las tarjetas gráficas. Se enfoca en las GPU de la familia de nVidia, se comenta un poco de la historia de estos multiprocesadores, su arquitectura y el modo en que podemos programar estos dispositivos, que ya no son solo utilizados en gráficos.\\
+En el Capítulo SIFT en GPU se presentan puntos importantes al momento de paralelizar un algoritmo: Cómo es que se propone dividir el algoritmo de SIFT para que sea más sencillo el proceso de paralelización, y como trabajan los kernels en general para este caso. Más adelante se explica cómo es que están estructuradas una a una las secciones, en las que dividimos el algoritmo.\\
+Para el capítulo Pruebas y Resultados se compara el tiempo que toma obtener los puntos característicos SIFT con el sistema propuesto y algunos otros ya implementados como la librería OpenSIFT y OpenCV.\\
+El capítulo Conclusiones y Trabajo a Futuro se tomaran en cuenta cuales fueron las ventajas y desventajas de haber paralelizado el algoritmo SIFT respecto a los resultados. Como es que benefician estos resultados y cuáles serían los puntos con los que se podría seguir adelante con este trabajo de investigación.  \\
 
 
 
