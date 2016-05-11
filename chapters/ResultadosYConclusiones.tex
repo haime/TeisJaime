@@ -1,7 +1,7 @@
 \chapter{Pruebas y Resultados}
 \spacing{1.5}
 \section{Pruebas}
-Para las pruebas realizadas se utilizó una computadora con un procesador AMD Phenom II 720 con tres núcleos a 2.80Ghz cada núcleo, 10 GB de memoria RAM y una tarjeta gráfica NVIDIA GeForce GTX 650 Ti tiene una arquitectura Kepler con 768 núcleos CUDA, memoria de 2 GB y un ancho de banda para 86.4 GB/s. En cuanto al software las pruebas de hicieron bajo un sistema operativo xubuntu 14.04, utilizando opencv y CUDA 6.5.\\
+Para las pruebas realizadas se utilizó una computadora con un procesador AMD Phenom II 720 con tres núcleos a 2.80Ghz cada núcleo, 10 GB de memoria RAM y una tarjeta gráfica NVIDIA GeForce GTX 650 Ti tiene una arquitectura Kepler con 768 núcleos CUDA, memoria de 2 GB y un ancho de banda para 86.4 GB/s. En cuanto al software las pruebas de hicieron bajo un sistema operativo xubuntu 14.04, utilizando openCV y CUDA 6.5.\\
 Teniendo en cuenta el hardware y la forma en que se diseñaron los kernels se deben realizar ciertas optimizaciones. Para esta implementación como no se usa memoria compartida le daremos preferencia a la memoria cache L1 usando, la función \textbf{cudaFuncSetCacheConfig()} recibe 2 parámetros el primero será el nombre de la función del dispositivo (kernel) y el segundo es la configuración que se le dará a la memoria, en este caso \textit{cudaFuncCachePreferL1}. Además, se debe tomar en cuenta la ocupación de los SM definida por la relación entre los \textit{warps} activos y la cantidad de \textit{warps} por SM. NVIDIA desarrollo una herramienta llamada CUDA Occupancy Calculator\cite{calc}, la cual auxilia al desarrollador a encontrar la máxima ocupación para el lanzamiento de un kernel. Necesitará como datos de entrada el número de hilos por bloque, la cantidad de memoria compartida usada y el número de registros por hilo.\\\\\\
 Otra herramienta que resulta muy útil para identificar problemas de rendimiento es el perfilador visual de NVIDIA\cite{profile}, gracias a este se pudo analizar la ocupación teórica calculada contra la real para cada ejecución de los diferentes kernel lanzados con diferentes imágenes de entrada, como se puede ver en la tabla 5-1.\\
 \begin{table}[H]
@@ -12,11 +12,11 @@ Otra herramienta que resulta muy útil para identificar problemas de rendimiento
 \cline{1-4}
 Kernel & Teórica &  Máxima Real &  Mínima Real\\
 \hline \hline
- Convolución      				& 100\%   &  99\%   &   13\%                     \\ \cline{1-4}
- Localización de min-max    	& 100\%   &  93\%   &   12\% \\ \cline{1-4}
- Remover puntos malos 			& 100\%   &  93\%   &   28\%                \\ \cline{1-4}
+ Convolución                    & 100\%   &  99\%   &   13\%                     \\ \cline{1-4}
+ Localización de min-max        & 100\%   &  93\%   &   12\% \\ \cline{1-4}
+ Remover puntos malos           & 100\%   &  93\%   &   28\%                \\ \cline{1-4}
  Asignar magnitud y orientación & 100\%   &  84\%   &   32\%            \\ \cline{1-4}
- Puntos característicos 		& 56\%    &  55\%   &   1.7\%           \\ \cline{1-4}
+ Puntos característicos         & 56\%    &  55\%   &   1.7\%           \\ \cline{1-4}
 \end{tabular}
 \caption{Ocupación teórica vs ocupación real}
 \label{tabla:final}
@@ -89,7 +89,7 @@ Resolución & CUDA SIFT & Open SIFT & Opencv SIFT & Puntos Característicos \\
 \hline \hline
 1920x1200 px & 676.32 ms &  4221.41 ms & 1415.98 ms   & 12000\\ \cline{1-5}
 \end{tabular}
-\caption{Tiempo de ejecucion de la implementacion en paralelo y 2 mas de forma secuencial}
+\caption{Tiempo de ejecución de la implementación en paralelo y 2 más de forma secuencial}
 \label{tabla:final}
 \end{table}
 \begin{table}[H]
@@ -108,7 +108,7 @@ Resolución & Open SIFT/CUDA SIFT & Opencv SIFT/CUDA SIFT\\
 \hline \hline
 1920x1200 px  & 6.24 & 2.09 \\ \cline{1-3}
 \end{tabular}
-\caption{ Speedup entre la implementacion en paralelo y 2 mas de forma secuencial}
+\caption{ Speedup entre la implementación en paralelo y 2 más de forma secuencial}
 \label{tabla:final}
 \end{table}
 Estas imágenes no eran las más adecuadas para hacer pruebas, ya que el robot de servicio Justina trabaja con imágenes como las de la figuras 5-3. Las primeras tres son objetos que tiene que manipular.\\
@@ -133,7 +133,7 @@ Estas imágenes no eran las más adecuadas para hacer pruebas, ya que el robot d
         \includegraphics[width=\textwidth]{img/estante.png}
         \caption{Estante}
     \end{subfigure}
-    \caption{Puntos característicos encontrados }
+    \caption{Puntos característicos encontrados}
 \end{figure}
 Lo que se hizo fue medir cuánto tiempo se tardaban en generar los puntos característicos en las 3 implementaciones anteriormente mencionadas y cambiar las resoluciones de estas imágenes, porque el robot no siempre vera los objetos del mismo tamaño. Dependerá de la cámara que se esté usando o que tan lejos esté viendo los objetos. Los resultados los podemos ver a continuación en las siguientes tablas:
 \begin{table}[phtb]
@@ -190,7 +190,7 @@ Resolución & CUDA SIFT & Open SIFT & Opencv SIFT & Puntos Característicos\\
 \centering
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-\multicolumn{3}{|c|}{Cafe} \\
+\multicolumn{3}{|c|}{Café} \\
 \cline{1-3}
 Resolución & Open SIFT/CUDA SIFT & Opencv SIFT/CUDA SIFT \\
 \hline \hline
